@@ -1,0 +1,3 @@
+"""
+ATLAS Platform - Tests Package
+"""
