@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2-beta] - 2026-07-11
+
+### Added
+
+#### Backend
+- **Admin Dashboard API**: System health metrics and monitoring
+- **Feature Flags Management**: Full CRUD API for feature flags
+- **Organizations Management**: Multi-tenancy support endpoints
+- **Plans Management**: Subscription plan management API
+- **Seats Management**: User seat allocation API
+- **Users Management**: Admin user management endpoints
+- **Report Engine**: Template-based report generation with PDF, HTML, DOCX, XLSX, JSON, CSV export
+- **Report Scheduling**: Cron-based report scheduling
+- **Notification System**: Email, Slack, and webhook notifications
+- **AI Provider Layer**: 7 AI providers with failover, cost tracking, observability
+- **Connector Framework**: 13 data connectors (Financial, News, Government)
+
+#### Testing
+- **388 passing tests** with pytest
+- **53% code coverage**
+
+### Fixed
+- Test database isolation issues
+- Model tests properly skipped (require PostgreSQL)
+
 ## [1.0.1-beta] - 2026-07-10
 
 ### ⚠️ MVP/Beta Release
