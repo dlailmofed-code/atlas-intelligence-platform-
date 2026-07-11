@@ -28,22 +28,22 @@ class TavilyConnector(BaseNewsConnector):
         TAVILY_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         TAVILY_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.tavily.com"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("TAVILY_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "tavily"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class TavilyConnector(BaseNewsConnector):
             is_free_tier=True,
             supported_endpoints=["/search", "/news", "/research"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class TavilyConnector(BaseNewsConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         if self.config.api_key:
             params["api_key"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class TavilyConnector(BaseNewsConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -118,9 +118,9 @@ class TavilyConnector(BaseNewsConnector):
             "include_raw_content": kwargs.get("include_raw_content", False),
             **kwargs,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -140,9 +140,9 @@ class TavilyConnector(BaseNewsConnector):
             "query": f"site:{source}",
             "max_results": limit,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_headlines(
         self,
         country: str = "us",
@@ -165,9 +165,9 @@ class TavilyConnector(BaseNewsConnector):
             "max_results": limit,
             "include_answer": False,
         }
-        
+
         return await self.fetch("/news", params)
-    
+
     async def deep_research(
         self,
         query: str,
@@ -190,9 +190,9 @@ class TavilyConnector(BaseNewsConnector):
             "depth": depth,
             **kwargs,
         }
-        
+
         return await self.fetch("/research", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if Tavily service is available.

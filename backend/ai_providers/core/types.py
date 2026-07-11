@@ -7,13 +7,12 @@ Type definitions for the AI provider layer.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable
-from uuid import UUID
+from typing import Any
 
 
 class ProviderType(str, Enum):
     """AI provider types."""
-    
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
@@ -25,7 +24,7 @@ class ProviderType(str, Enum):
 
 class ModelCapability(str, Enum):
     """Model capabilities."""
-    
+
     CHAT = "chat"
     COMPLETION = "completion"
     STREAMING = "streaming"
@@ -39,7 +38,7 @@ class ModelCapability(str, Enum):
 
 class ProviderStatus(str, Enum):
     """Provider health status."""
-    
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -50,7 +49,7 @@ class ProviderStatus(str, Enum):
 @dataclass
 class ModelInfo:
     """Information about an AI model."""
-    
+
     name: str
     provider: ProviderType
     display_name: str
@@ -68,7 +67,7 @@ class ModelInfo:
 @dataclass
 class PromptTemplate:
     """A prompt template."""
-    
+
     id: str
     name: str
     version: str
@@ -82,7 +81,7 @@ class PromptTemplate:
 @dataclass
 class Message:
     """A chat message."""
-    
+
     role: str  # "system", "user", "assistant", "function"
     content: str
     name: str | None = None
@@ -92,7 +91,7 @@ class Message:
 @dataclass
 class FunctionDefinition:
     """Definition of a callable function."""
-    
+
     name: str
     description: str
     parameters: dict[str, Any]  # JSON Schema
@@ -102,7 +101,7 @@ class FunctionDefinition:
 @dataclass
 class ChatRequest:
     """Request for chat completion."""
-    
+
     messages: list[Message]
     model: str
     temperature: float = 0.7
@@ -120,7 +119,7 @@ class ChatRequest:
 @dataclass
 class UsageStats:
     """Token usage statistics."""
-    
+
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -130,7 +129,7 @@ class UsageStats:
 @dataclass
 class ProviderMetrics:
     """Metrics for a provider."""
-    
+
     provider_name: str
     total_requests: int = 0
     successful_requests: int = 0
@@ -147,19 +146,19 @@ class ProviderMetrics:
     last_request_at: datetime | None = None
     last_success_at: datetime | None = None
     last_failure_at: datetime | None = None
-    
+
     @property
     def success_rate(self) -> float:
         if self.total_requests == 0:
             return 0.0
         return self.successful_requests / self.total_requests
-    
+
     @property
     def average_latency_ms(self) -> float:
         if self.successful_requests == 0:
             return 0.0
         return self.total_latency_ms / self.successful_requests
-    
+
     @property
     def average_cost(self) -> float:
         if self.total_requests == 0:
@@ -170,7 +169,7 @@ class ProviderMetrics:
 @dataclass
 class ChatResponse:
     """Response from chat completion."""
-    
+
     content: str
     model: str
     provider: ProviderType
@@ -188,7 +187,7 @@ class ChatResponse:
 @dataclass
 class StreamChunk:
     """A chunk from a streaming response."""
-    
+
     content: str
     delta: str
     index: int
@@ -200,7 +199,7 @@ class StreamChunk:
 @dataclass
 class CircuitBreakerState:
     """State of a circuit breaker."""
-    
+
     failure_count: int = 0
     success_count: int = 0
     last_failure_time: datetime | None = None
@@ -211,7 +210,7 @@ class CircuitBreakerState:
 @dataclass
 class RoutingConfig:
     """Configuration for request routing."""
-    
+
     priority_providers: list[ProviderType] = field(default_factory=list)
     weights: dict[ProviderType, float] = field(default_factory=dict)
     fallback_enabled: bool = True
@@ -224,7 +223,7 @@ class RoutingConfig:
 @dataclass
 class ProviderHealth:
     """Health status of a provider."""
-    
+
     provider: ProviderType
     status: ProviderStatus
     latency_ms: float | None = None

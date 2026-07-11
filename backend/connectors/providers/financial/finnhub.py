@@ -28,22 +28,22 @@ class FinnhubConnector(BaseFinancialConnector):
         FINNHUB_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         FINNHUB_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://finnhub.io/api/v1"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("FINNHUB_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "finnhub"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class FinnhubConnector(BaseFinancialConnector):
             is_free_tier=True,
             supported_endpoints=["quote", "stock/candle", "search", "stock/profile2"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -76,10 +76,10 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["token"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -90,7 +90,7 @@ class FinnhubConnector(BaseFinancialConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch real-time quote for a symbol.
@@ -102,9 +102,9 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with quote data
         """
         params = {"symbol": symbol}
-        
+
         return await self.fetch("/quote", params)
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -125,21 +125,21 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with historical data
         """
         from datetime import datetime
-        
+
         params = {
             "symbol": symbol,
             "resolution": interval[0].upper() if len(interval) == 1 else "D",
         }
-        
+
         if start_date:
             start_ts = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp())
             params["from"] = start_ts
         if end_date:
             end_ts = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp())
             params["to"] = end_ts
-        
+
         return await self.fetch("/stock/candle", params)
-    
+
     async def search_symbols(self, query: str) -> ConnectorResponse:
         """
         Search for symbols.
@@ -151,9 +151,9 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with matching symbols
         """
         params = {"query": query}
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_company_profile(self, symbol: str) -> ConnectorResponse:
         """
         Fetch company profile.
@@ -165,9 +165,9 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with company profile
         """
         params = {"symbol": symbol}
-        
+
         return await self.fetch("/stock/profile2", params)
-    
+
     async def fetch_market_news(self, category: str = "general") -> ConnectorResponse:
         """
         Fetch market news.
@@ -179,9 +179,9 @@ class FinnhubConnector(BaseFinancialConnector):
             ConnectorResponse with market news
         """
         params = {"category": category}
-        
+
         return await self.fetch("/news", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if Finnhub service is available.

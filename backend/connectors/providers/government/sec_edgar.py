@@ -28,9 +28,9 @@ class SECEdgarConnector(BaseGovernmentConnector):
         SEC_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         SEC_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://data.sec.gov"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("SEC_")
@@ -38,14 +38,14 @@ class SECEdgarConnector(BaseGovernmentConnector):
                 config.base_url = self.BASE_URL
             # SEC EDGAR doesn't require API key
             config.api_key = None
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "sec_edgar"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -59,7 +59,7 @@ class SECEdgarConnector(BaseGovernmentConnector):
             is_free_tier=True,
             supported_endpoints=["company_search", "company_filings", "financial_reports"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -79,7 +79,7 @@ class SECEdgarConnector(BaseGovernmentConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -90,7 +90,7 @@ class SECEdgarConnector(BaseGovernmentConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def search(self, query: str, **kwargs: Any) -> ConnectorResponse:
         """
         Search for companies in EDGAR.
@@ -112,9 +112,9 @@ class SECEdgarConnector(BaseGovernmentConnector):
             "start": kwargs.get("start", 0),
             "count": kwargs.get("count", 40),
         }
-        
+
         return await self.fetch("/cgi-bin/browse-edgar", params)
-    
+
     async def get_details(self, identifier: str) -> ConnectorResponse:
         """
         Get company details.
@@ -126,9 +126,9 @@ class SECEdgarConnector(BaseGovernmentConnector):
             ConnectorResponse with company details
         """
         cik = identifier.strip().lstrip("0")
-        
+
         return await self.fetch(f"/submissions/CIK{cik}.json", params={})
-    
+
     async def get_company_filings(
         self,
         cik: str,
@@ -147,10 +147,10 @@ class SECEdgarConnector(BaseGovernmentConnector):
             ConnectorResponse with filings
         """
         response = await self.get_details(cik)
-        
+
         if response.success and response.data:
             filings = response.data.get("filings", {}).get("recent", {})
-            
+
             if form_type:
                 indices = [
                     i for i, t in enumerate(filings.get("form", []))
@@ -161,9 +161,9 @@ class SECEdgarConnector(BaseGovernmentConnector):
                     for k, v in filings.items()
                 }
                 response.data = filtered_filings
-        
+
         return response
-    
+
     async def get_financial_reports(
         self,
         cik: str,
@@ -180,7 +180,7 @@ class SECEdgarConnector(BaseGovernmentConnector):
             ConnectorResponse with financial reports
         """
         return await self.get_company_filings(cik, form_type=None)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if SEC EDGAR service is available.

@@ -8,13 +8,13 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from backend.connectors.base import BaseConnector, ConnectorConfig, ProviderInfo, ProviderType
+from backend.connectors.base import BaseConnector, ProviderType
 from backend.connectors.base.types import ConnectorResponse
 
 
 class NewsArticle(BaseModel):
     """Schema for a news article."""
-    
+
     title: str
     description: str | None = None
     content: str | None = None
@@ -31,11 +31,11 @@ class BaseNewsConnector(BaseConnector):
     
     Provides common functionality for news connectors.
     """
-    
+
     @property
     def provider_type(self) -> ProviderType:
         return ProviderType.NEWS
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -56,7 +56,7 @@ class BaseNewsConnector(BaseConnector):
             ConnectorResponse with list of NewsArticle
         """
         raise NotImplementedError
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -73,7 +73,7 @@ class BaseNewsConnector(BaseConnector):
             ConnectorResponse with list of NewsArticle
         """
         raise NotImplementedError
-    
+
     async def fetch_headlines(
         self,
         country: str = "us",

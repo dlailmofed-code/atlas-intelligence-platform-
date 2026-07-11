@@ -28,22 +28,22 @@ class PolygonConnector(BaseFinancialConnector):
         POLYGON_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         POLYGON_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.polygon.io/v2"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("POLYGON_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "polygon"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class PolygonConnector(BaseFinancialConnector):
             is_free_tier=True,
             supported_endpoints=["aggs", "quotes", "trades", "snapshot"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -76,10 +76,10 @@ class PolygonConnector(BaseFinancialConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["apiKey"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -90,7 +90,7 @@ class PolygonConnector(BaseFinancialConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch real-time quote for a symbol.
@@ -102,7 +102,7 @@ class PolygonConnector(BaseFinancialConnector):
             ConnectorResponse with quote data
         """
         return await self.fetch(f"/snapshot/locale/us/markets/stocks/tickers/{symbol}", params={})
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -124,20 +124,20 @@ class PolygonConnector(BaseFinancialConnector):
         """
         multiplier = 1
         timespan = interval if interval != "daily" else "day"
-        
+
         params = {
             "adjusted": "true",
             "sort": "asc",
             "limit": 50000,
         }
-        
+
         if start_date:
             params["from"] = start_date
         if end_date:
             params["to"] = end_date
-        
+
         return await self.fetch(f"/aggs/ticker/{symbol}/range/{multiplier}/{timespan}", params)
-    
+
     async def search_symbols(self, query: str) -> ConnectorResponse:
         """
         Search for symbols.
@@ -149,9 +149,9 @@ class PolygonConnector(BaseFinancialConnector):
             ConnectorResponse with matching symbols
         """
         params = {"search": query}
-        
+
         return await self.fetch("/reference/tickers", params)
-    
+
     async def fetch_ticker_details(self, symbol: str) -> ConnectorResponse:
         """
         Fetch detailed ticker information.
@@ -163,7 +163,7 @@ class PolygonConnector(BaseFinancialConnector):
             ConnectorResponse with ticker details
         """
         return await self.fetch(f"/reference/tickers/{symbol}", params={})
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if Polygon service is available.

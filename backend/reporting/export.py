@@ -7,8 +7,6 @@ Exports reports to various formats.
 import csv
 import io
 import json
-from datetime import datetime
-from typing import Any
 
 from backend.core.logging import get_logger
 from backend.reporting.types import ExportFormat, ReportData, ReportExport
@@ -18,7 +16,7 @@ logger = get_logger(__name__)
 
 class ReportExporter:
     """Exports reports to various formats."""
-    
+
     def export(
         self,
         report: ReportData,
@@ -48,13 +46,13 @@ class ReportExporter:
             return self._export_csv(report)
         else:
             raise ValueError(f"Unsupported format: {format}")
-    
+
     def _export_pdf(self, report: ReportData) -> ReportExport:
         """Export to PDF format."""
         # For production, integrate with a PDF library like reportlab or weasyprint
         # For now, return HTML as placeholder
         html_export = self._export_html(report)
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.PDF,
@@ -62,11 +60,11 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.pdf",
             content_type="application/pdf",
         )
-    
+
     def _export_html(self, report: ReportData) -> ReportExport:
         """Export to HTML format."""
         html_content = self._generate_html(report)
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.HTML,
@@ -74,13 +72,13 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.html",
             content_type="text/html",
         )
-    
+
     def _export_docx(self, report: ReportData) -> ReportExport:
         """Export to DOCX format."""
         # For production, integrate with python-docx
         # For now, return text as placeholder
         text_content = self._generate_text(report)
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.DOCX,
@@ -88,13 +86,13 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.docx",
             content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
-    
+
     def _export_xlsx(self, report: ReportData) -> ReportExport:
         """Export to XLSX format."""
         # For production, integrate with openpyxl
         # For now, return CSV as placeholder
         csv_export = self._export_csv(report)
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.XLSX,
@@ -102,7 +100,7 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.xlsx",
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-    
+
     def _export_json(self, report: ReportData) -> ReportExport:
         """Export to JSON format."""
         report_dict = {
@@ -125,9 +123,9 @@ class ReportExporter:
             "generated_at": report.generated_at.isoformat(),
             "generated_by": report.generated_by,
         }
-        
+
         json_content = json.dumps(report_dict, indent=2)
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.JSON,
@@ -135,19 +133,19 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.json",
             content_type="application/json",
         )
-    
+
     def _export_csv(self, report: ReportData) -> ReportExport:
         """Export to CSV format."""
         output = io.StringIO()
         writer = csv.writer(output)
-        
+
         # Write sections
         writer.writerow(["Section", "Title", "Content"])
         for section in report.sections:
             writer.writerow([section.type.value, section.title, section.content[:500]])
-        
+
         csv_content = output.getvalue()
-        
+
         return ReportExport(
             report_id=report.report_id,
             format=ExportFormat.CSV,
@@ -155,11 +153,11 @@ class ReportExporter:
             filename=f"{report.title.replace(' ', '_')}.csv",
             content_type="text/csv",
         )
-    
+
     def _generate_html(self, report: ReportData) -> str:
         """Generate HTML content for report."""
         sections_html = ""
-        
+
         for section in report.sections:
             sections_html += f"""
             <section id="{section.id}">
@@ -169,7 +167,7 @@ class ReportExporter:
                 </div>
             </section>
             """
-        
+
         return f"""
 <!DOCTYPE html>
 <html>
@@ -244,7 +242,7 @@ class ReportExporter:
 </body>
 </html>
 """
-    
+
     def _generate_text(self, report: ReportData) -> str:
         """Generate plain text content for report."""
         lines = [
@@ -257,20 +255,20 @@ class ReportExporter:
             "",
             "-" * 80,
         ]
-        
+
         for section in report.sections:
             lines.append("")
             lines.append(section.title.upper())
             lines.append("-" * 40)
             lines.append(section.content.strip())
             lines.append("")
-        
+
         lines.extend([
             "-" * 80,
             "",
             "Generated by ATLAS Platform Intelligence Engine",
         ])
-        
+
         return "\n".join(lines)
 
 

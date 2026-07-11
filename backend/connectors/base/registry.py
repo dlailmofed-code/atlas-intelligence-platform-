@@ -19,16 +19,16 @@ class ConnectorRegistry:
     
     Provides singleton access to all configured connectors.
     """
-    
+
     _instance: "ConnectorRegistry | None" = None
     _connectors: dict[str, BaseConnector] = {}
-    
+
     def __new__(cls) -> "ConnectorRegistry":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._connectors = {}
         return cls._instance
-    
+
     def register(self, name: str, connector: BaseConnector) -> None:
         """Register a connector."""
         self._connectors[name] = connector
@@ -36,7 +36,7 @@ class ConnectorRegistry:
             "Registered connector",
             extra={"connector_name": name, "provider": connector.provider_name}
         )
-    
+
     def unregister(self, name: str) -> None:
         """Unregister a connector."""
         if name in self._connectors:
@@ -45,36 +45,36 @@ class ConnectorRegistry:
                 "Unregistered connector",
                 extra={"connector_name": name}
             )
-    
+
     def get(self, name: str) -> BaseConnector | None:
         """Get a registered connector."""
         return self._connectors.get(name)
-    
+
     def get_all(self) -> dict[str, BaseConnector]:
         """Get all registered connectors."""
         return dict(self._connectors)
-    
+
     def get_by_type(self, provider_type: ProviderType) -> list[BaseConnector]:
         """Get all connectors of a specific type."""
         return [
             c for c in self._connectors.values()
             if c.provider_type == provider_type
         ]
-    
+
     def get_healthy(self) -> dict[str, BaseConnector]:
         """Get all healthy connectors."""
         return {
             name: c for name, c in self._connectors.items()
             if c.health.status == HealthStatus.HEALTHY
         }
-    
+
     def get_all_stats(self) -> dict[str, Any]:
         """Get statistics for all connectors."""
         return {
             name: connector.get_stats()
             for name, connector in self._connectors.items()
         }
-    
+
     async def health_check_all(self) -> dict[str, dict[str, Any]]:
         """Perform health check on all connectors."""
         results = {}
@@ -93,7 +93,7 @@ class ConnectorRegistry:
                     "error": str(e),
                 }
         return results
-    
+
     async def close_all(self) -> None:
         """Close all registered connectors."""
         for name, connector in self._connectors.items():

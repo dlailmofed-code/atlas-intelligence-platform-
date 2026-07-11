@@ -2,7 +2,8 @@
 Tests for reporting types.
 """
 
-import pytest
+
+from uuid import uuid4
 
 from backend.reporting.types import (
     ExportFormat,
@@ -15,12 +16,11 @@ from backend.reporting.types import (
     ReportType,
     ScheduledReport,
 )
-from uuid import uuid4
 
 
 class TestReportType:
     """Tests for ReportType enum."""
-    
+
     def test_all_types(self):
         """Test all report type values."""
         assert ReportType.OPPORTUNITY_ANALYSIS.value == "opportunity_analysis"
@@ -31,7 +31,7 @@ class TestReportType:
 
 class TestReportStatus:
     """Tests for ReportStatus enum."""
-    
+
     def test_all_statuses(self):
         """Test all status values."""
         assert ReportStatus.PENDING.value == "pending"
@@ -42,7 +42,7 @@ class TestReportStatus:
 
 class TestExportFormat:
     """Tests for ExportFormat enum."""
-    
+
     def test_all_formats(self):
         """Test all format values."""
         assert ExportFormat.PDF.value == "pdf"
@@ -55,7 +55,7 @@ class TestExportFormat:
 
 class TestReportSectionType:
     """Tests for ReportSectionType enum."""
-    
+
     def test_all_types(self):
         """Test all section type values."""
         assert ReportSectionType.EXECUTIVE_SUMMARY.value == "executive_summary"
@@ -66,7 +66,7 @@ class TestReportSectionType:
 
 class TestReportSection:
     """Tests for ReportSection dataclass."""
-    
+
     def test_creation(self):
         """Test section creation."""
         section = ReportSection(
@@ -76,7 +76,7 @@ class TestReportSection:
             content="Test content",
             order=0,
         )
-        
+
         assert section.id == "test-1"
         assert section.type == ReportSectionType.EXECUTIVE_SUMMARY
         assert section.content == "Test content"
@@ -85,7 +85,7 @@ class TestReportSection:
 
 class TestReportTemplate:
     """Tests for ReportTemplate dataclass."""
-    
+
     def test_creation(self):
         """Test template creation."""
         template = ReportTemplate(
@@ -95,7 +95,7 @@ class TestReportTemplate:
             type=ReportType.MARKET_RESEARCH,
             sections=[ReportSectionType.EXECUTIVE_SUMMARY],
         )
-        
+
         assert template.id == "template-1"
         assert template.type == ReportType.MARKET_RESEARCH
         assert len(template.sections) == 1
@@ -103,7 +103,7 @@ class TestReportTemplate:
 
 class TestReportRequest:
     """Tests for ReportRequest dataclass."""
-    
+
     def test_creation(self):
         """Test request creation."""
         request = ReportRequest(
@@ -111,7 +111,7 @@ class TestReportRequest:
             type=ReportType.MARKET_RESEARCH,
             description="Test description",
         )
-        
+
         assert request.title == "Test Report"
         assert request.type == ReportType.MARKET_RESEARCH
         assert request.export_format == ExportFormat.PDF
@@ -119,7 +119,7 @@ class TestReportRequest:
 
 class TestReportData:
     """Tests for ReportData dataclass."""
-    
+
     def test_creation(self):
         """Test data creation."""
         data = ReportData(
@@ -127,7 +127,7 @@ class TestReportData:
             title="Test Report",
             type=ReportType.MARKET_RESEARCH,
         )
-        
+
         assert data.title == "Test Report"
         assert data.type == ReportType.MARKET_RESEARCH
         assert len(data.sections) == 0
@@ -135,7 +135,7 @@ class TestReportData:
 
 class TestScheduledReport:
     """Tests for ScheduledReport dataclass."""
-    
+
     def test_creation(self):
         """Test scheduled report creation."""
         report = ScheduledReport(
@@ -146,7 +146,7 @@ class TestScheduledReport:
             parameters={},
             recipients=["test@example.com"],
         )
-        
+
         assert report.title == "Weekly Report"
         assert report.schedule == "weekly"
         assert len(report.recipients) == 1

@@ -28,22 +28,22 @@ class SerpAPIConnector(BaseNewsConnector):
         SERP_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         SERP_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://serpapi.com"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("SERP_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "serpapi"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class SerpAPIConnector(BaseNewsConnector):
             is_free_tier=False,
             supported_endpoints=["/search", "/news", "/images"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class SerpAPIConnector(BaseNewsConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         if self.config.api_key:
             params["api_key"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class SerpAPIConnector(BaseNewsConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -117,9 +117,9 @@ class SerpAPIConnector(BaseNewsConnector):
             "tbm": "nws",  # News
             **kwargs,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -140,9 +140,9 @@ class SerpAPIConnector(BaseNewsConnector):
             "num": limit,
             "tbm": "nws",
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_headlines(
         self,
         country: str = "us",
@@ -166,9 +166,9 @@ class SerpAPIConnector(BaseNewsConnector):
             "tbm": "nws",
             "gl": country,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def search(
         self,
         query: str,
@@ -191,9 +191,9 @@ class SerpAPIConnector(BaseNewsConnector):
             "engine": engine,
             **kwargs,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if SerpAPI service is available.

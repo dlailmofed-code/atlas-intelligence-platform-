@@ -3,8 +3,8 @@ ATLAS Platform - AI Provider Observability
 """
 
 from backend.ai_providers.observability.metrics import (
-    AIObserver,
     AggregatedMetrics,
+    AIObserver,
     HealthMonitor,
     MetricsCollector,
     TraceCollector,
@@ -14,10 +14,10 @@ from backend.ai_providers.observability.metrics import (
 
 __all__ = [
     "AIObserver",
+    "AggregatedMetrics",
+    "HealthMonitor",
     "MetricsCollector",
     "TraceCollector",
-    "HealthMonitor",
     "TraceEvent",
-    "AggregatedMetrics",
     "get_ai_observer",
 ]

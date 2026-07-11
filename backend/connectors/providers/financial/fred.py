@@ -29,22 +29,22 @@ class FREDConnector(BaseFinancialConnector):
         FRED_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         FRED_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.stlouisfed.org/fred"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("FRED_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "fred"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -58,7 +58,7 @@ class FREDConnector(BaseFinancialConnector):
             is_free_tier=True,
             supported_endpoints=["series/observations", "series/search", "category/series"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,11 +77,11 @@ class FREDConnector(BaseFinancialConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["api_key"] = self.config.api_key
         params["file_type"] = "json"
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -92,7 +92,7 @@ class FREDConnector(BaseFinancialConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch latest value for an economic indicator.
@@ -108,9 +108,9 @@ class FREDConnector(BaseFinancialConnector):
             "limit": 1,
             "sort_order": "desc",
         }
-        
+
         return await self.fetch("/series/observations", params)
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -134,14 +134,14 @@ class FREDConnector(BaseFinancialConnector):
             "series_id": symbol,
             "limit": 100000,
         }
-        
+
         if start_date:
             params["observation_start"] = start_date
         if end_date:
             params["observation_end"] = end_date
-        
+
         return await self.fetch("/series/observations", params)
-    
+
     async def search_indicators(self, query: str) -> ConnectorResponse:
         """
         Search for economic indicators.
@@ -153,9 +153,9 @@ class FREDConnector(BaseFinancialConnector):
             ConnectorResponse with matching series
         """
         params = {"search_text": query}
-        
+
         return await self.fetch("/series/search", params)
-    
+
     async def fetch_category_series(
         self,
         category_id: int,
@@ -175,9 +175,9 @@ class FREDConnector(BaseFinancialConnector):
             "category_id": category_id,
             "limit": limit,
         }
-        
+
         return await self.fetch("/category/series", params)
-    
+
     async def fetch_releases(self) -> ConnectorResponse:
         """
         Fetch all releases.
@@ -186,7 +186,7 @@ class FREDConnector(BaseFinancialConnector):
             ConnectorResponse with releases
         """
         return await self.fetch("/releases", params={})
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if FRED service is available.

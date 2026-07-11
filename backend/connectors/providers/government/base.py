@@ -8,13 +8,13 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from backend.connectors.base import BaseConnector, ConnectorConfig, ProviderInfo, ProviderType
+from backend.connectors.base import BaseConnector, ProviderType
 from backend.connectors.base.types import ConnectorResponse
 
 
 class SECFiling(BaseModel):
     """Schema for an SEC filing."""
-    
+
     accession_number: str | None = None
     filing_date: str | None = None
     company_name: str | None = None
@@ -25,7 +25,7 @@ class SECFiling(BaseModel):
 
 class PatentInfo(BaseModel):
     """Schema for a patent."""
-    
+
     patent_number: str | None = None
     title: str | None = None
     abstract: str | None = None
@@ -37,7 +37,7 @@ class PatentInfo(BaseModel):
 
 class CompanyInfo(BaseModel):
     """Schema for company registration information."""
-    
+
     company_number: str | None = None
     name: str | None = None
     jurisdiction: str | None = None
@@ -53,11 +53,11 @@ class BaseGovernmentConnector(BaseConnector):
     
     Provides common functionality for government/legal connectors.
     """
-    
+
     @property
     def provider_type(self) -> ProviderType:
         return ProviderType.GOVERNMENT_LEGAL
-    
+
     async def search(self, query: str, **kwargs: Any) -> ConnectorResponse:
         """
         Search for records.
@@ -70,7 +70,7 @@ class BaseGovernmentConnector(BaseConnector):
             ConnectorResponse with search results
         """
         raise NotImplementedError
-    
+
     async def get_details(self, identifier: str) -> ConnectorResponse:
         """
         Get details for a specific record.

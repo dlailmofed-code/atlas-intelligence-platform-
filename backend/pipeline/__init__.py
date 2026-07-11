@@ -6,6 +6,7 @@ Production-grade data pipeline for processing and enriching data from connectors
 
 from backend.pipeline.types import (
     DeduplicationResult,
+    EntityType,
     ExtractedEvidence,
     GraphEntity,
     GraphRelationship,
@@ -16,11 +17,10 @@ from backend.pipeline.types import (
     PipelineMetrics,
     PipelineRecord,
     PipelineStage,
+    RelationshipType,
     SourceType,
     StorageRecord,
     ValidationResult,
-    EntityType,
-    RelationshipType,
 )
 
 __all__ = [

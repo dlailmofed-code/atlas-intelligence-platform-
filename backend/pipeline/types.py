@@ -13,7 +13,7 @@ from uuid import UUID
 
 class PipelineStage(str, Enum):
     """Pipeline processing stages."""
-    
+
     RAW = "raw"
     COLLECTED = "collected"
     VALIDATED = "validated"
@@ -27,7 +27,7 @@ class PipelineStage(str, Enum):
 
 class JobStatus(str, Enum):
     """Job execution status."""
-    
+
     PENDING = "pending"
     QUEUED = "queued"
     RUNNING = "running"
@@ -39,7 +39,7 @@ class JobStatus(str, Enum):
 
 class JobPriority(int, Enum):
     """Job priority levels (higher = more urgent)."""
-    
+
     LOW = 1
     NORMAL = 5
     HIGH = 10
@@ -48,7 +48,7 @@ class JobPriority(int, Enum):
 
 class SourceType(str, Enum):
     """Data source types."""
-    
+
     NEWS = "news"
     FINANCIAL = "financial"
     GOVERNMENT = "government"
@@ -60,7 +60,7 @@ class SourceType(str, Enum):
 
 class EntityType(str, Enum):
     """Knowledge graph entity types."""
-    
+
     COMPANY = "company"
     ORGANIZATION = "organization"
     PERSON = "person"
@@ -75,7 +75,7 @@ class EntityType(str, Enum):
 
 class RelationshipType(str, Enum):
     """Knowledge graph relationship types."""
-    
+
     ACQUISITION = "acquisition"
     PARTNERSHIP = "partnership"
     COMPETITION = "competition"
@@ -92,7 +92,7 @@ class RelationshipType(str, Enum):
 @dataclass
 class PipelineConfig:
     """Configuration for pipeline execution."""
-    
+
     max_parallel_jobs: int = 10
     job_timeout_seconds: int = 300
     retry_max_attempts: int = 3
@@ -109,7 +109,7 @@ class PipelineConfig:
 @dataclass
 class PipelineJob:
     """A pipeline job representing a unit of work."""
-    
+
     id: UUID
     job_type: str
     source_name: str
@@ -130,7 +130,7 @@ class PipelineJob:
 @dataclass
 class PipelineRecord:
     """A record being processed through the pipeline."""
-    
+
     id: UUID
     source_name: str
     source_type: SourceType
@@ -154,7 +154,7 @@ class PipelineRecord:
 @dataclass
 class ExtractedEvidence:
     """Evidence extracted from a record."""
-    
+
     entity_type: EntityType
     entity_id: str
     entity_name: str
@@ -169,7 +169,7 @@ class ExtractedEvidence:
 @dataclass
 class GraphEntity:
     """An entity in the knowledge graph."""
-    
+
     id: str
     entity_type: EntityType
     name: str
@@ -185,7 +185,7 @@ class GraphEntity:
 @dataclass
 class GraphRelationship:
     """A relationship in the knowledge graph."""
-    
+
     id: str
     source_entity_id: str
     target_entity_id: str
@@ -200,41 +200,41 @@ class GraphRelationship:
 @dataclass
 class PipelineMetrics:
     """Metrics for pipeline monitoring."""
-    
+
     jobs_total: int = 0
     jobs_completed: int = 0
     jobs_failed: int = 0
     jobs_running: int = 0
     jobs_pending: int = 0
     jobs_retried: int = 0
-    
+
     records_processed: int = 0
     records_validated: int = 0
     records_rejected: int = 0
     records_deduplicated: int = 0
-    
+
     evidence_extracted: int = 0
     entities_created: int = 0
     entities_updated: int = 0
     relationships_created: int = 0
-    
+
     total_processing_time_ms: float = 0.0
     avg_processing_time_ms: float = 0.0
-    
+
     connector_latencies: dict[str, list[float]] = field(default_factory=dict)
-    
+
     cache_hits: int = 0
     cache_misses: int = 0
-    
+
     stage_durations_ms: dict[PipelineStage, float] = field(default_factory=dict)
-    
+
     last_updated: datetime = field(default_factory=datetime.utcnow)
 
 
 @dataclass
 class ValidationResult:
     """Result of data validation."""
-    
+
     is_valid: bool
     confidence_score: float
     errors: list[str] = field(default_factory=list)
@@ -246,7 +246,7 @@ class ValidationResult:
 @dataclass
 class DeduplicationResult:
     """Result of deduplication check."""
-    
+
     is_duplicate: bool
     duplicate_id: UUID | None = None
     similarity_score: float = 0.0
@@ -257,7 +257,7 @@ class DeduplicationResult:
 @dataclass
 class StorageRecord:
     """A record stored in the data store."""
-    
+
     id: UUID
     stage: PipelineStage
     source_name: str

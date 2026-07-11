@@ -28,22 +28,22 @@ class AlphaVantageConnector(BaseFinancialConnector):
         ALPHA_VANTAGE_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         ALPHA_VANTAGE_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://www.alphavantage.co/query"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("ALPHA_VANTAGE_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "alpha_vantage"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class AlphaVantageConnector(BaseFinancialConnector):
             is_free_tier=True,
             supported_endpoints=["GLOBAL_QUOTE", "TIME_SERIES_DAILY", "SYMBOL_SEARCH"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -76,10 +76,10 @@ class AlphaVantageConnector(BaseFinancialConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["apikey"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -90,7 +90,7 @@ class AlphaVantageConnector(BaseFinancialConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch real-time quote for a symbol.
@@ -105,9 +105,9 @@ class AlphaVantageConnector(BaseFinancialConnector):
             "function": "GLOBAL_QUOTE",
             "symbol": symbol,
         }
-        
+
         return await self.fetch("GLOBAL_QUOTE", params)
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -132,12 +132,12 @@ class AlphaVantageConnector(BaseFinancialConnector):
             "symbol": symbol,
             "outputsize": "full" if start_date else "compact",
         }
-        
+
         if interval == "intraday":
             params["interval"] = "5min"
-        
+
         return await self.fetch(f"TIME_SERIES_{interval.upper()}", params)
-    
+
     async def search_symbols(self, query: str) -> ConnectorResponse:
         """
         Search for symbols.
@@ -152,9 +152,9 @@ class AlphaVantageConnector(BaseFinancialConnector):
             "function": "SYMBOL_SEARCH",
             "keywords": query,
         }
-        
+
         return await self.fetch("SYMBOL_SEARCH", params)
-    
+
     async def fetch_forex_rate(
         self,
         from_currency: str,
@@ -175,9 +175,9 @@ class AlphaVantageConnector(BaseFinancialConnector):
             "from_currency": from_currency,
             "to_currency": to_currency,
         }
-        
+
         return await self.fetch("CURRENCY_EXCHANGE_RATE", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if Alpha Vantage service is available.

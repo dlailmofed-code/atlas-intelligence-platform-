@@ -14,10 +14,10 @@ from backend.pipeline.cleaning.cleaner import (
 
 __all__ = [
     "DataCleaner",
-    "HTMLCleaner",
-    "WhitespaceNormalizer",
-    "UnicodeNormalizer",
     "EncodingCleaner",
+    "HTMLCleaner",
     "LanguageCleaner",
+    "UnicodeNormalizer",
+    "WhitespaceNormalizer",
     "get_cleaner",
 ]

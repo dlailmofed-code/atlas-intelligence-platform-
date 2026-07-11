@@ -4,11 +4,10 @@ ATLAS Platform - Admin Dashboard API
 System monitoring and admin dashboard endpoints.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
 from backend.api.v1.endpoints.auth import get_current_user
@@ -27,17 +26,17 @@ router = APIRouter(prefix="/admin/dashboard", tags=["admin"])
 
 class SystemHealth(BaseModel):
     """System health status."""
-    
+
     status: str = "healthy"
     uptime_seconds: float = 0.0
     version: str = "1.0.0"
     environment: str = "development"
-    last_checked: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_checked: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ServiceStatus(BaseModel):
     """Status of a service."""
-    
+
     name: str
     status: str  # healthy, degraded, unhealthy
     latency_ms: float | None = None
@@ -47,15 +46,15 @@ class ServiceStatus(BaseModel):
 
 class ServiceHealthResponse(BaseModel):
     """Response for service health check."""
-    
+
     overall_status: str = "healthy"
     services: list[ServiceStatus] = []
-    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class UsageMetric(BaseModel):
     """A usage metric."""
-    
+
     name: str
     value: float
     unit: str = ""
@@ -64,7 +63,7 @@ class UsageMetric(BaseModel):
 
 class UsageStatsResponse(BaseModel):
     """Response for usage statistics."""
-    
+
     total_users: int = 0
     active_users_24h: int = 0
     total_organizations: int = 0
@@ -74,12 +73,12 @@ class UsageStatsResponse(BaseModel):
     api_calls_today: int = 0
     metrics: list[UsageMetric] = []
     period_start: datetime
-    period_end: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    period_end: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class CostMetric(BaseModel):
     """A cost metric."""
-    
+
     provider: str
     total_cost: float = 0.0
     prompt_tokens: int = 0
@@ -89,7 +88,7 @@ class CostMetric(BaseModel):
 
 class CostStatsResponse(BaseModel):
     """Response for cost statistics."""
-    
+
     total_cost: float = 0.0
     daily_cost: float = 0.0
     monthly_cost: float = 0.0
@@ -100,7 +99,7 @@ class CostStatsResponse(BaseModel):
 
 class ErrorSummary(BaseModel):
     """Summary of errors."""
-    
+
     error_type: str
     count: int
     last_occurrence: datetime | None = None
@@ -108,23 +107,23 @@ class ErrorSummary(BaseModel):
 
 class ErrorStatsResponse(BaseModel):
     """Response for error statistics."""
-    
+
     total_errors_24h: int = 0
     error_rate: float = 0.0
     top_errors: list[ErrorSummary] = []
     period_start: datetime
-    period_end: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    period_end: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class DashboardResponse(BaseModel):
     """Complete dashboard response."""
-    
+
     system_health: SystemHealth
     service_health: ServiceHealthResponse
     usage: UsageStatsResponse
     costs: CostStatsResponse
     errors: ErrorStatsResponse
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -146,7 +145,7 @@ async def get_system_health(
         uptime_seconds=0.0,  # Would calculate from process start time
         version="1.0.1-beta",
         environment="development",
-        last_checked=datetime.now(timezone.utc),
+        last_checked=datetime.now(UTC),
     )
 
 
@@ -166,11 +165,11 @@ async def get_service_health(
         ServiceStatus(name="anthropic", status="healthy", latency_ms=150.0, is_available=True),
         ServiceStatus(name="google", status="healthy", latency_ms=80.0, is_available=True),
     ]
-    
+
     return ServiceHealthResponse(
         overall_status="healthy",
         services=services,
-        checked_at=datetime.now(timezone.utc),
+        checked_at=datetime.now(UTC),
     )
 
 
@@ -184,8 +183,8 @@ async def get_usage_stats(
     
     Returns user activity, API usage, and other metrics.
     """
-    now = datetime.now(timezone.utc)
-    
+    now = datetime.now(UTC)
+
     return UsageStatsResponse(
         total_users=100,
         active_users_24h=50,
@@ -236,8 +235,8 @@ async def get_error_stats(
     
     Returns error counts and top errors.
     """
-    now = datetime.now(timezone.utc)
-    
+    now = datetime.now(UTC)
+
     return ErrorStatsResponse(
         total_errors_24h=25,
         error_rate=0.5,
@@ -265,7 +264,7 @@ async def get_dashboard(
     usage = await get_usage_stats("day", current_user)
     costs = await get_cost_stats(current_user)
     errors = await get_error_stats(current_user)
-    
+
     return DashboardResponse(
         system_health=health,
         service_health=services,

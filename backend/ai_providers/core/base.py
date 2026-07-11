@@ -6,7 +6,8 @@ Base interface for all AI providers.
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 from backend.ai_providers.core.types import (
     ChatRequest,
@@ -27,7 +28,7 @@ class BaseProvider(ABC):
     All provider implementations must inherit from this class
     and implement the required methods.
     """
-    
+
     def __init__(
         self,
         api_key: str | None = None,
@@ -40,30 +41,30 @@ class BaseProvider(ABC):
         self.timeout = timeout
         self.max_retries = max_retries
         self._metrics = ProviderMetrics(provider_name=self.provider_name)
-    
+
     @property
     @abstractmethod
     def provider_name(self) -> str:
         """Return the provider name."""
         pass
-    
+
     @property
     @abstractmethod
     def provider_type(self) -> ProviderType:
         """Return the provider type enum."""
         pass
-    
+
     @property
     @abstractmethod
     def default_model(self) -> str:
         """Return the default model identifier."""
         pass
-    
+
     @abstractmethod
     def get_available_models(self) -> list[ModelInfo]:
         """Return list of available models."""
         pass
-    
+
     @abstractmethod
     async def chat(self, request: ChatRequest) -> ChatResponse:
         """
@@ -76,7 +77,7 @@ class BaseProvider(ABC):
             ChatResponse with content and metadata
         """
         pass
-    
+
     @abstractmethod
     async def chat_stream(
         self,
@@ -92,7 +93,7 @@ class BaseProvider(ABC):
             StreamChunk for each response delta
         """
         pass
-    
+
     async def chat_with_retry(
         self,
         request: ChatRequest,
@@ -120,7 +121,7 @@ class BaseProvider(ABC):
                 provider=self.provider_type,
                 error=str(e),
             )
-    
+
     async def health_check(self) -> bool:
         """
         Check if the provider is healthy.
@@ -141,15 +142,15 @@ class BaseProvider(ABC):
             return response.error is None
         except Exception:
             return False
-    
+
     def get_metrics(self) -> ProviderMetrics:
         """Get provider metrics."""
         return self._metrics
-    
+
     def reset_metrics(self) -> None:
         """Reset provider metrics."""
         self._metrics = ProviderMetrics(provider_name=self.provider_name)
-    
+
     def _update_metrics(
         self,
         latency_ms: float,
@@ -162,32 +163,32 @@ class BaseProvider(ABC):
         self._metrics.total_latency_ms += latency_ms
         self._metrics.min_latency_ms = min(self._metrics.min_latency_ms, latency_ms)
         self._metrics.max_latency_ms = max(self._metrics.max_latency_ms, latency_ms)
-        
+
         if error:
             self._metrics.failed_requests += 1
             self._metrics.consecutive_failures += 1
         else:
             self._metrics.successful_requests += 1
             self._metrics.consecutive_failures = 0
-        
+
         if is_rate_limit:
             self._metrics.rate_limit_hits += 1
-        
+
         if usage:
             self._metrics.total_prompt_tokens += usage.prompt_tokens
             self._metrics.total_completion_tokens += usage.completion_tokens
             self._metrics.total_cost += usage.estimated_cost
-    
+
     @abstractmethod
     def _format_messages(self, messages: list[dict]) -> list[dict]:
         """Format messages for provider-specific API."""
         pass
-    
+
     @abstractmethod
     def _parse_response(self, raw_response: Any) -> ChatResponse:
         """Parse raw API response to ChatResponse."""
         pass
-    
+
     @abstractmethod
     def _calculate_cost(self, usage: UsageStats, model: str) -> float:
         """Calculate estimated cost based on token usage."""
@@ -196,7 +197,7 @@ class BaseProvider(ABC):
 
 class StreamingProviderMixin:
     """Mixin for providers that support streaming."""
-    
+
     async def chat_stream(
         self,
         request: ChatRequest,
@@ -217,11 +218,11 @@ class StreamingProviderMixin:
 
 class FunctionCallingProviderMixin:
     """Mixin for providers that support function calling."""
-    
+
     def supports_function_calling(self) -> bool:
         """Check if provider supports function calling."""
         return True
-    
+
     @abstractmethod
     async def chat_with_functions(
         self,

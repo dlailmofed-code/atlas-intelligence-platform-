@@ -11,8 +11,8 @@ Handles storage of pipeline data at each stage:
 
 import hashlib
 import json
-from datetime import datetime, timedelta, timezone
-from typing import Any, AsyncIterator
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID
 
 from backend.core.logging import get_logger
@@ -25,14 +25,14 @@ logger = get_logger(__name__)
 
 class InMemoryStorage:
     """In-memory storage for pipeline data."""
-    
+
     def __init__(self):
         self._records: dict[UUID, dict[str, Any]] = {}
         self._entities: dict[str, GraphEntity] = {}
         self._relationships: dict[str, GraphRelationship] = {}
         self._evidence: dict[UUID, ExtractedEvidence] = {}
         self._storage_records: dict[UUID, StorageRecord] = {}
-    
+
     # Record storage
     async def save_record(self, record: PipelineRecord) -> None:
         """Save a pipeline record."""
@@ -56,7 +56,7 @@ class InMemoryStorage:
             "created_at": record.created_at.isoformat(),
             "updated_at": record.updated_at.isoformat(),
         }
-        
+
         # Also save as storage record
         storage_record = StorageRecord(
             id=record.id,
@@ -69,12 +69,12 @@ class InMemoryStorage:
             created_at=record.created_at,
         )
         self._storage_records[record.id] = storage_record
-        
+
         logger.debug(
             "Record saved",
             extra={"record_id": str(record.id), "stage": record.stage.value}
         )
-    
+
     def _get_stage_data(self, record: PipelineRecord) -> dict[str, Any]:
         """Get data for current stage."""
         return (
@@ -88,20 +88,20 @@ class InMemoryStorage:
             or record.raw_data
             or {}
         )
-    
+
     def _generate_checksum(self, record: PipelineRecord) -> str:
         """Generate checksum for record."""
         data = self._get_stage_data(record)
         content = json.dumps(data, sort_keys=True, default=str)
         return hashlib.sha256(content.encode()).hexdigest()[:16]
-    
+
     async def get_record(self, record_id: UUID) -> PipelineRecord | None:
         """Get a record by ID."""
         if record_id not in self._records:
             return None
-        
+
         data = self._records[record_id]
-        
+
         return PipelineRecord(
             id=data["id"],
             source_name=data["source_name"],
@@ -122,7 +122,7 @@ class InMemoryStorage:
             created_at=datetime.fromisoformat(data["created_at"]),
             updated_at=datetime.fromisoformat(data["updated_at"]),
         )
-    
+
     async def list_records(
         self,
         stage: PipelineStage | None = None,
@@ -131,22 +131,22 @@ class InMemoryStorage:
     ) -> list[PipelineRecord]:
         """List records with optional filtering."""
         results = []
-        
+
         for record_data in self._records.values():
             if stage and record_data["stage"] != stage.value:
                 continue
             if source_name and record_data["source_name"] != source_name:
                 continue
-            
+
             record = await self.get_record(UUID(str(record_data["id"])))
             if record:
                 results.append(record)
-            
+
             if len(results) >= limit:
                 break
-        
+
         return results
-    
+
     async def delete_record(self, record_id: UUID) -> bool:
         """Delete a record."""
         if record_id in self._records:
@@ -154,7 +154,7 @@ class InMemoryStorage:
         if record_id in self._storage_records:
             del self._storage_records[record_id]
         return True
-    
+
     # Entity storage
     async def save_entity(self, entity: GraphEntity) -> None:
         """Save a graph entity."""
@@ -163,11 +163,11 @@ class InMemoryStorage:
             "Entity saved",
             extra={"entity_id": entity.id, "type": entity.entity_type.value}
         )
-    
+
     async def get_entity(self, entity_id: str) -> GraphEntity | None:
         """Get an entity by ID."""
         return self._entities.get(entity_id)
-    
+
     async def list_entities(
         self,
         entity_type: str | None = None,
@@ -175,17 +175,17 @@ class InMemoryStorage:
     ) -> list[GraphEntity]:
         """List entities with optional filtering."""
         results = []
-        
+
         for entity in self._entities.values():
             if entity_type and entity.entity_type.value != entity_type:
                 continue
             results.append(entity)
-            
+
             if len(results) >= limit:
                 break
-        
+
         return results
-    
+
     # Relationship storage
     async def save_relationship(self, relationship: GraphRelationship) -> None:
         """Save a graph relationship."""
@@ -197,11 +197,11 @@ class InMemoryStorage:
                 "type": relationship.relationship_type.value,
             }
         )
-    
+
     async def get_relationship(self, rel_id: str) -> GraphRelationship | None:
         """Get a relationship by ID."""
         return self._relationships.get(rel_id)
-    
+
     async def list_relationships(
         self,
         entity_id: str | None = None,
@@ -209,18 +209,18 @@ class InMemoryStorage:
     ) -> list[GraphRelationship]:
         """List relationships with optional filtering."""
         results = []
-        
+
         for rel in self._relationships.values():
             if entity_id:
                 if rel.source_entity_id != entity_id and rel.target_entity_id != entity_id:
                     continue
             results.append(rel)
-            
+
             if len(results) >= limit:
                 break
-        
+
         return results
-    
+
     # Evidence storage
     async def save_evidence(self, evidence: ExtractedEvidence) -> None:
         """Save extracted evidence."""
@@ -232,19 +232,19 @@ class InMemoryStorage:
                 "entity_id": evidence.entity_id,
             }
         )
-    
+
     async def get_evidence_for_record(
         self,
         record_id: UUID,
     ) -> list[ExtractedEvidence]:
         """Get all evidence for a record."""
         return [e for e in self._evidence.values() if e.source_record_id == record_id]
-    
+
     # Storage record operations
     async def get_storage_record(self, record_id: UUID) -> StorageRecord | None:
         """Get a storage record."""
         return self._storage_records.get(record_id)
-    
+
     async def list_storage_records(
         self,
         stage: PipelineStage | None = None,
@@ -253,39 +253,39 @@ class InMemoryStorage:
     ) -> list[StorageRecord]:
         """List storage records with optional filtering."""
         results = []
-        
+
         for record in self._storage_records.values():
             if stage and record.stage != stage:
                 continue
             if older_than and record.created_at < older_than:
                 continue
-            
+
             results.append(record)
-            
+
             if len(results) >= limit:
                 break
-        
+
         return results
-    
+
     async def cleanup_expired(self, ttl_hours: int = 24) -> int:
         """Remove expired storage records."""
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=ttl_hours)
+        cutoff = datetime.now(UTC) - timedelta(hours=ttl_hours)
         expired_ids = [
             rid for rid, rec in self._storage_records.items()
             if rec.created_at < cutoff
         ]
-        
+
         for rid in expired_ids:
             del self._storage_records[rid]
-        
+
         if expired_ids:
             logger.info(
                 "Expired records cleaned up",
                 extra={"count": len(expired_ids)}
             )
-        
+
         return len(expired_ids)
-    
+
     # Stats
     def get_stats(self) -> dict[str, Any]:
         """Get storage statistics."""
@@ -310,7 +310,7 @@ class InMemoryStorage:
                 for source in set(r["source_name"] for r in self._records.values())
             },
         }
-    
+
     def clear(self) -> None:
         """Clear all stored data."""
         self._records.clear()
@@ -323,19 +323,19 @@ class InMemoryStorage:
 
 class StorageManager:
     """Manages storage operations with transaction support."""
-    
+
     def __init__(self, storage: InMemoryStorage | None = None):
         self.storage = storage or InMemoryStorage()
-    
+
     async def save_pipeline_record(self, record: PipelineRecord) -> None:
         """Save a complete pipeline record."""
         await self.storage.save_record(record)
-    
+
     async def save_evidence_batch(self, evidence_list: list[ExtractedEvidence]) -> None:
         """Save a batch of evidence."""
         for evidence in evidence_list:
             await self.storage.save_evidence(evidence)
-    
+
     async def save_graph_data(
         self,
         entities: list[GraphEntity],
@@ -346,20 +346,20 @@ class StorageManager:
             await self.storage.save_entity(entity)
         for rel in relationships:
             await self.storage.save_relationship(rel)
-    
+
     async def get_complete_record(self, record_id: UUID) -> dict[str, Any] | None:
         """Get a complete record with all stages."""
         record = await self.storage.get_record(record_id)
         if not record:
             return None
-        
+
         evidence = await self.storage.get_evidence_for_record(record_id)
-        
+
         return {
             "record": record,
             "evidence": evidence,
         }
-    
+
     async def search_records(
         self,
         query: str,
@@ -367,10 +367,10 @@ class StorageManager:
     ) -> list[PipelineRecord]:
         """Search records by content."""
         all_records = await self.storage.list_records(stage=stage, limit=1000)
-        
+
         query_lower = query.lower()
         matching = []
-        
+
         for record in all_records:
             data = record.raw_data or {}
             content = " ".join(
@@ -379,7 +379,7 @@ class StorageManager:
             )
             if query_lower in content.lower():
                 matching.append(record)
-        
+
         return matching
 
 

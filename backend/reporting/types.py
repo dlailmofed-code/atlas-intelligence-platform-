@@ -13,7 +13,7 @@ from uuid import UUID
 
 class ReportType(str, Enum):
     """Report types."""
-    
+
     OPPORTUNITY_ANALYSIS = "opportunity_analysis"
     MARKET_RESEARCH = "market_research"
     TREND_ANALYSIS = "trend_analysis"
@@ -25,7 +25,7 @@ class ReportType(str, Enum):
 
 class ReportStatus(str, Enum):
     """Report generation status."""
-    
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -35,7 +35,7 @@ class ReportStatus(str, Enum):
 
 class ExportFormat(str, Enum):
     """Export formats."""
-    
+
     PDF = "pdf"
     HTML = "html"
     DOCX = "docx"
@@ -46,7 +46,7 @@ class ExportFormat(str, Enum):
 
 class ReportSectionType(str, Enum):
     """Report section types."""
-    
+
     EXECUTIVE_SUMMARY = "executive_summary"
     INTRODUCTION = "introduction"
     METHODOLOGY = "methodology"
@@ -62,7 +62,7 @@ class ReportSectionType(str, Enum):
 @dataclass
 class ReportSection:
     """A section within a report."""
-    
+
     id: str
     type: ReportSectionType
     title: str
@@ -76,7 +76,7 @@ class ReportSection:
 @dataclass
 class ReportTemplate:
     """Template for generating reports."""
-    
+
     id: str
     name: str
     description: str
@@ -89,7 +89,7 @@ class ReportTemplate:
 @dataclass
 class ReportRequest:
     """Request to generate a report."""
-    
+
     title: str
     type: ReportType
     description: str | None = None
@@ -104,7 +104,7 @@ class ReportRequest:
 @dataclass
 class ReportData:
     """Report data container."""
-    
+
     report_id: UUID
     title: str
     type: ReportType
@@ -119,7 +119,7 @@ class ReportData:
 @dataclass
 class ScheduledReport:
     """Scheduled report configuration."""
-    
+
     id: UUID
     title: str
     type: ReportType
@@ -135,7 +135,7 @@ class ScheduledReport:
 @dataclass
 class ReportExport:
     """Exported report."""
-    
+
     report_id: UUID
     format: ExportFormat
     content: bytes
@@ -147,7 +147,7 @@ class ReportExport:
 @dataclass
 class ChartConfig:
     """Configuration for a chart."""
-    
+
     type: str  # bar, line, pie, scatter, etc.
     title: str
     data: dict[str, Any] = field(default_factory=dict)
@@ -157,7 +157,7 @@ class ChartConfig:
 @dataclass
 class TableConfig:
     """Configuration for a table."""
-    
+
     title: str
     headers: list[str]
     rows: list[list[Any]]

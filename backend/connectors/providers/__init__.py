@@ -58,7 +58,7 @@ def get_all_connector_names() -> list[str]:
 def get_connectors_by_type(provider_type: str) -> list:
     """Get connectors by provider type."""
     from backend.connectors.base.types import ProviderType
-    
+
     result = []
     for connector in ALL_CONNECTORS.values():
         # Create temporary instance to check type
@@ -66,7 +66,7 @@ def get_connectors_by_type(provider_type: str) -> list:
         instance = connector()
         if instance.provider_type.value == provider_type:
             result.append(connector)
-    
+
     return result
 
 

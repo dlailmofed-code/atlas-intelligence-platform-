@@ -7,16 +7,14 @@ Generates reports from various data sources.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from backend.core.logging import get_logger
 from backend.reporting.types import (
-    ExportFormat,
     ReportData,
     ReportRequest,
     ReportSection,
     ReportSectionType,
-    ReportStatus,
     ReportTemplate,
     ReportType,
 )
@@ -27,7 +25,7 @@ logger = get_logger(__name__)
 @dataclass
 class ChartConfig:
     """Configuration for a chart."""
-    
+
     type: str  # bar, line, pie, scatter, etc.
     title: str
     data: dict[str, Any]
@@ -37,7 +35,7 @@ class ChartConfig:
 @dataclass
 class TableConfig:
     """Configuration for a table."""
-    
+
     title: str
     headers: list[str]
     rows: list[list[Any]]
@@ -46,16 +44,16 @@ class TableConfig:
 
 class ReportGenerator:
     """Generates reports from data."""
-    
+
     def __init__(self):
         self._templates: dict[str, ReportTemplate] = {}
         self._section_generators: dict[ReportSectionType, callable] = {}
-    
+
     def register_template(self, template: ReportTemplate) -> None:
         """Register a report template."""
         self._templates[template.id] = template
         logger.info(f"Registered report template: {template.id}")
-    
+
     def register_section_generator(
         self,
         section_type: ReportSectionType,
@@ -63,7 +61,7 @@ class ReportGenerator:
     ) -> None:
         """Register a section generator function."""
         self._section_generators[section_type] = generator
-    
+
     async def generate_report(
         self,
         request: ReportRequest,
@@ -80,19 +78,19 @@ class ReportGenerator:
             Generated report data
         """
         report_id = uuid4()
-        
+
         logger.info(f"Generating report: {request.title} (type: {request.type})")
-        
+
         sections = []
         charts = []
         tables = []
-        
+
         # Get template or use default
         template = self._templates.get(request.template_id)
-        
+
         # Generate sections based on report type
         section_order = self._get_section_order(request.type)
-        
+
         for order, section_type in enumerate(section_order):
             section = await self._generate_section(
                 section_type=section_type,
@@ -104,7 +102,7 @@ class ReportGenerator:
                 sections.append(section)
                 charts.extend(section.charts)
                 tables.extend(section.tables)
-        
+
         return ReportData(
             report_id=report_id,
             title=request.title,
@@ -119,7 +117,7 @@ class ReportGenerator:
             },
             generated_by=str(request.user_id) if request.user_id else None,
         )
-    
+
     async def _generate_section(
         self,
         section_type: ReportSectionType,
@@ -128,7 +126,7 @@ class ReportGenerator:
         data: dict[str, Any] | None,
     ) -> ReportSection | None:
         """Generate a single report section."""
-        
+
         # Check for custom generator
         generator = self._section_generators.get(section_type)
         if generator:
@@ -136,10 +134,10 @@ class ReportGenerator:
                 content = await generator(section_type, request, data)
             except Exception as e:
                 logger.error(f"Section generator failed: {e}")
-                content = f"Error generating section: {str(e)}"
+                content = f"Error generating section: {e!s}"
         else:
             content = self._generate_default_content(section_type, request, data)
-        
+
         return ReportSection(
             id=str(uuid4()),
             type=section_type,
@@ -147,10 +145,10 @@ class ReportGenerator:
             content=content,
             order=order,
         )
-    
+
     def _get_section_order(self, report_type: ReportType) -> list[ReportSectionType]:
         """Get the section order for a report type."""
-        
+
         orders = {
             ReportType.OPPORTUNITY_ANALYSIS: [
                 ReportSectionType.EXECUTIVE_SUMMARY,
@@ -209,12 +207,12 @@ class ReportGenerator:
                 ReportSectionType.CONCLUSION,
             ],
         }
-        
+
         return orders.get(report_type, orders[ReportType.CUSTOM])
-    
+
     def _get_section_title(self, section_type: ReportSectionType) -> str:
         """Get the display title for a section type."""
-        
+
         titles = {
             ReportSectionType.EXECUTIVE_SUMMARY: "Executive Summary",
             ReportSectionType.INTRODUCTION: "Introduction",
@@ -227,9 +225,9 @@ class ReportGenerator:
             ReportSectionType.APPENDIX: "Appendix",
             ReportSectionType.REFERENCES: "References",
         }
-        
+
         return titles.get(section_type, section_type.value.replace("_", " ").title())
-    
+
     def _generate_default_content(
         self,
         section_type: ReportSectionType,
@@ -237,7 +235,7 @@ class ReportGenerator:
         data: dict[str, Any] | None,
     ) -> str:
         """Generate default content for a section."""
-        
+
         templates = {
             ReportSectionType.EXECUTIVE_SUMMARY: f"""
 This report provides an analysis of {request.description or 'the requested topic'}.
@@ -279,7 +277,7 @@ This report was generated using a systematic approach:
 - Industry databases
 - Public records and filings
 """,
-            ReportSectionType.FINDINGS: f"""
+            ReportSectionType.FINDINGS: """
 ## Key Findings
 
 Based on the analysis, the following key findings were identified:
@@ -387,7 +385,7 @@ Terms and definitions used in this report are consistent with industry standards
 *All sources are properly cited within the report where applicable.*
 """,
         }
-        
+
         return templates.get(section_type, f"Section content for {section_type.value}")
 
 

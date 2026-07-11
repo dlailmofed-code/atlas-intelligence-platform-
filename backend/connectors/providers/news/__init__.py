@@ -13,10 +13,10 @@ from backend.connectors.providers.news.tavily import TavilyConnector
 
 __all__ = [
     "BaseNewsConnector",
-    "NewsArticle",
     "GDELTConnector",
     "GoogleNewsConnector",
     "NewsAPIConnector",
+    "NewsArticle",
     "SerpAPIConnector",
     "TavilyConnector",
 ]

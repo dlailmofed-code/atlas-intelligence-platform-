@@ -29,21 +29,21 @@ class GoogleNewsConnector(BaseNewsConnector):
         GOOGLE_NEWS_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         GOOGLE_NEWS_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("GOOGLE_NEWS_")
             if config.base_url is None:
                 # Using SerpAPI as the underlying service
                 config.base_url = "https://serpapi.com"
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or "https://serpapi.com"
-    
+
     @property
     def provider_name(self) -> str:
         return "google_news"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class GoogleNewsConnector(BaseNewsConnector):
             is_free_tier=False,
             supported_endpoints=["/search", "/news"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class GoogleNewsConnector(BaseNewsConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         if self.config.api_key:
             params["api_key"] = self.config.api_key
-        
+
         # Placeholder response for demonstration
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class GoogleNewsConnector(BaseNewsConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -117,9 +117,9 @@ class GoogleNewsConnector(BaseNewsConnector):
             "tbm": "nws",  # News
             **kwargs,
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -140,9 +140,9 @@ class GoogleNewsConnector(BaseNewsConnector):
             "num": limit,
             "tbm": "nws",
         }
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_headlines(
         self,
         country: str = "us",
@@ -165,12 +165,12 @@ class GoogleNewsConnector(BaseNewsConnector):
             "tbm": "nws",
             "num": limit,
         }
-        
+
         if category:
             params["tbs"] = f"cat:{category}"
-        
+
         return await self.fetch("/search", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if Google News service is available.

@@ -14,12 +14,12 @@ from backend.pipeline.metrics.pipeline_metrics import (
 )
 
 __all__ = [
+    "CacheMetrics",
+    "ConnectorMetrics",
+    "JobMetrics",
     "MetricsCollector",
     "MetricsReporter",
     "StageMetrics",
-    "ConnectorMetrics",
-    "JobMetrics",
-    "CacheMetrics",
     "get_metrics_collector",
     "get_metrics_reporter",
 ]

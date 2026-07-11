@@ -15,13 +15,13 @@ from backend.pipeline.normalization.normalizer import (
 )
 
 __all__ = [
+    "CompanyNormalizer",
+    "CountryNormalizer",
+    "CurrencyNormalizer",
     "DataNormalizer",
     "DateNormalizer",
-    "CurrencyNormalizer",
-    "CountryNormalizer",
     "LanguageNormalizer",
-    "CompanyNormalizer",
-    "PersonNormalizer",
     "LocationNormalizer",
+    "PersonNormalizer",
     "get_normalizer",
 ]

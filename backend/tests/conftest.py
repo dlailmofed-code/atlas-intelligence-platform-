@@ -30,25 +30,54 @@ def event_loop() -> Generator:
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="function")
+# Module-level engine to avoid recreating
+_test_engine = None
+_models_imported = False
+_schema_created = False
+
+
+def _import_all_models():
+    """Import all models to register them with Base."""
+    global _models_imported
+    if not _models_imported:
+        # Import all model modules
+        from backend.models import common, users, projects, subscriptions  # noqa
+        from backend.models import reports, signals, sources, evidence, knowledge  # noqa
+        from backend.models import monetization, notifications  # noqa
+        _models_imported = True
+
+
+@pytest_asyncio.fixture(scope="session")
 async def test_engine():
-    """Create a test database engine."""
-    engine = create_async_engine(
-        TEST_DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-        echo=False,
-    )
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    yield engine
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-    await engine.dispose()
+    """Create a test database engine with schema created once per session."""
+    global _test_engine, _schema_created
+    
+    if _test_engine is None:
+        _test_engine = create_async_engine(
+            TEST_DATABASE_URL,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+            echo=False,
+        )
+        
+        # Import all models to register them with Base
+        _import_all_models()
+        
+        # Create schema only once with checkfirst to avoid duplicate index errors
+        if not _schema_created:
+            async with _test_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            _schema_created = True
+    
+    yield _test_engine
+    
+    # Cleanup after all tests
+    if _test_engine is not None:
+        async with _test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+        await _test_engine.dispose()
+        _test_engine = None
+        _schema_created = False
 
 
 @pytest_asyncio.fixture(scope="function")

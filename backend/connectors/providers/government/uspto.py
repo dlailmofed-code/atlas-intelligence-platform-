@@ -29,22 +29,22 @@ class USPTOConnector(BaseGovernmentConnector):
         USPTO_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         USPTO_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://developer.uspto.gov/api/v1"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("USPTO_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "uspto"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -58,7 +58,7 @@ class USPTOConnector(BaseGovernmentConnector):
             is_free_tier=True,
             supported_endpoints=["patents", "trademarks", "search"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,7 +77,7 @@ class USPTOConnector(BaseGovernmentConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -88,7 +88,7 @@ class USPTOConnector(BaseGovernmentConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def search(self, query: str, **kwargs: Any) -> ConnectorResponse:
         """
         Search for patents.
@@ -105,12 +105,12 @@ class USPTOConnector(BaseGovernmentConnector):
             "start": kwargs.get("start", 0),
             "rows": kwargs.get("limit", 25),
         }
-        
+
         if kwargs.get("patent_type"):
             params["fq"] = f'patentType:"{kwargs["patent_type"]}"'
-        
+
         return await self.fetch("/patents/search", params)
-    
+
     async def get_details(self, identifier: str) -> ConnectorResponse:
         """
         Get patent details.
@@ -122,7 +122,7 @@ class USPTOConnector(BaseGovernmentConnector):
             ConnectorResponse with patent details
         """
         return await self.fetch(f"/patents/{identifier}", params={})
-    
+
     async def search_trademarks(self, query: str, **kwargs: Any) -> ConnectorResponse:
         """
         Search for trademarks.
@@ -139,9 +139,9 @@ class USPTOConnector(BaseGovernmentConnector):
             "start": kwargs.get("start", 0),
             "rows": kwargs.get("limit", 25),
         }
-        
+
         return await self.fetch("/ trademarks/search", params)
-    
+
     async def get_patent_applications(
         self,
         date_from: str | None = None,
@@ -163,14 +163,14 @@ class USPTOConnector(BaseGovernmentConnector):
             "start": 0,
             "rows": limit,
         }
-        
+
         if date_from:
             params["date_from"] = date_from
         if date_to:
             params["date_to"] = date_to
-        
+
         return await self.fetch("/patents/search", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if USPTO service is available.

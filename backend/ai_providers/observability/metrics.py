@@ -7,12 +7,14 @@ Metrics, tracing, and monitoring.
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID
 
-from backend.ai_providers.core.types import ProviderHealth, ProviderMetrics, ProviderType, ProviderStatus
-
+from backend.ai_providers.core.types import (
+    ProviderHealth,
+    ProviderMetrics,
+    ProviderType,
+)
 from backend.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -21,7 +23,7 @@ logger = get_logger(__name__)
 @dataclass
 class AggregatedMetrics:
     """Aggregated metrics across all providers."""
-    
+
     total_requests: int = 0
     successful_requests: int = 0
     failed_requests: int = 0
@@ -37,7 +39,7 @@ class AggregatedMetrics:
 @dataclass
 class TraceEvent:
     """A traced event."""
-    
+
     id: str
     timestamp: datetime
     event_type: str
@@ -49,12 +51,12 @@ class TraceEvent:
 
 class MetricsCollector:
     """Collects and aggregates AI provider metrics."""
-    
+
     def __init__(self):
         self._provider_metrics: dict[ProviderType, ProviderMetrics] = {}
         self._model_metrics: dict[str, dict[str, Any]] = defaultdict(lambda: defaultdict(int))
         self._start_time = time.time()
-    
+
     def record_request(
         self,
         provider: ProviderType,
@@ -70,10 +72,10 @@ class MetricsCollector:
         # Update provider metrics
         if provider not in self._provider_metrics:
             self._provider_metrics[provider] = ProviderMetrics(provider_name=provider.value)
-        
+
         metrics = self._provider_metrics[provider]
         metrics.total_requests += 1
-        
+
         if success:
             metrics.successful_requests += 1
             metrics.total_latency_ms += latency_ms
@@ -82,38 +84,38 @@ class MetricsCollector:
         else:
             metrics.failed_requests += 1
             metrics.consecutive_failures += 1
-        
+
         if error and "rate limit" in error.lower():
             metrics.rate_limit_hits += 1
-        
+
         metrics.total_prompt_tokens += prompt_tokens
         metrics.total_completion_tokens += completion_tokens
         metrics.total_cost += cost
-        metrics.last_request_at = datetime.now(timezone.utc)
-        
+        metrics.last_request_at = datetime.now(UTC)
+
         if success:
-            metrics.last_success_at = datetime.now(timezone.utc)
+            metrics.last_success_at = datetime.now(UTC)
         else:
-            metrics.last_failure_at = datetime.now(timezone.utc)
-        
+            metrics.last_failure_at = datetime.now(UTC)
+
         # Update model metrics
         model_key = f"{provider.value}:{model}"
         self._model_metrics[model_key]["total_requests"] += 1
         self._model_metrics[model_key]["total_tokens"] += prompt_tokens + completion_tokens
         self._model_metrics[model_key]["total_cost"] += cost
-    
+
     def get_provider_metrics(self, provider: ProviderType) -> ProviderMetrics | None:
         """Get metrics for a specific provider."""
         return self._provider_metrics.get(provider)
-    
+
     def get_all_provider_metrics(self) -> dict[ProviderType, ProviderMetrics]:
         """Get metrics for all providers."""
         return dict(self._provider_metrics)
-    
+
     def get_aggregated_metrics(self) -> AggregatedMetrics:
         """Get aggregated metrics across all providers."""
         total = AggregatedMetrics()
-        
+
         for provider, metrics in self._provider_metrics.items():
             total.total_requests += metrics.total_requests
             total.successful_requests += metrics.successful_requests
@@ -123,15 +125,15 @@ class MetricsCollector:
             total.total_completion_tokens += metrics.total_completion_tokens
             total.average_latency_ms += metrics.total_latency_ms
             total.by_provider[provider.value] = metrics
-        
+
         if total.successful_requests > 0:
             total.average_latency_ms /= total.successful_requests
-        
+
         total.by_model = dict(self._model_metrics)
-        total.last_updated = datetime.now(timezone.utc)
-        
+        total.last_updated = datetime.now(UTC)
+
         return total
-    
+
     def reset(self) -> None:
         """Reset all metrics."""
         self._provider_metrics.clear()
@@ -141,11 +143,11 @@ class MetricsCollector:
 
 class TraceCollector:
     """Collects traces for requests."""
-    
+
     def __init__(self, max_traces: int = 10000):
         self.max_traces = max_traces
         self._traces: list[TraceEvent] = []
-    
+
     def start_trace(
         self,
         trace_id: str,
@@ -155,14 +157,14 @@ class TraceCollector:
         """Start a new trace."""
         event = TraceEvent(
             id=trace_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             event_type="request_start",
             provider=provider,
             model=model,
             duration_ms=0.0,
         )
         return event
-    
+
     def end_trace(
         self,
         event: TraceEvent,
@@ -176,13 +178,13 @@ class TraceCollector:
         event.metadata["success"] = success
         if error:
             event.metadata["error"] = error
-        
+
         self._traces.append(event)
-        
+
         # Trim if needed
         if len(self._traces) > self.max_traces:
             self._traces = self._traces[-self.max_traces:]
-    
+
     def get_traces(
         self,
         limit: int = 100,
@@ -190,20 +192,20 @@ class TraceCollector:
     ) -> list[TraceEvent]:
         """Get recent traces."""
         traces = self._traces
-        
+
         if provider:
             traces = [t for t in traces if t.provider == provider]
-        
+
         return traces[-limit:]
 
 
 class HealthMonitor:
     """Monitors provider health."""
-    
+
     def __init__(self):
         self._health_status: dict[ProviderType, ProviderHealth] = {}
         self._last_check: dict[ProviderType, datetime] = {}
-    
+
     def update_health(
         self,
         provider: ProviderType,
@@ -211,16 +213,16 @@ class HealthMonitor:
     ) -> None:
         """Update health status for a provider."""
         self._health_status[provider] = status
-        self._last_check[provider] = datetime.now(timezone.utc)
-    
+        self._last_check[provider] = datetime.now(UTC)
+
     def get_health(self, provider: ProviderType) -> ProviderHealth | None:
         """Get health status for a provider."""
         return self._health_status.get(provider)
-    
+
     def get_all_health(self) -> dict[ProviderType, ProviderHealth]:
         """Get health status for all providers."""
         return dict(self._health_status)
-    
+
     def is_provider_available(self, provider: ProviderType) -> bool:
         """Check if a provider is available."""
         health = self._health_status.get(provider)
@@ -231,12 +233,12 @@ class HealthMonitor:
 
 class AIObserver:
     """Main observability component."""
-    
+
     def __init__(self):
         self.metrics = MetricsCollector()
         self.traces = TraceCollector()
         self.health = HealthMonitor()
-    
+
     def record(
         self,
         provider: ProviderType,
@@ -259,12 +261,12 @@ class AIObserver:
             completion_tokens=completion_tokens,
             cost=cost,
         )
-    
+
     def get_dashboard_data(self) -> dict[str, Any]:
         """Get dashboard data."""
         aggregated = self.metrics.get_aggregated_metrics()
         health = self.health.get_all_health()
-        
+
         return {
             "summary": {
                 "total_requests": aggregated.total_requests,

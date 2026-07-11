@@ -19,11 +19,11 @@ from backend.ai_providers.core.types import (
     FunctionDefinition,
     Message,
     ModelInfo,
+    PromptTemplate,
     ProviderHealth,
     ProviderMetrics,
     ProviderStatus,
     ProviderType,
-    PromptTemplate,
     RoutingConfig,
     StreamChunk,
     UsageStats,
@@ -35,11 +35,6 @@ from backend.ai_providers.observability.metrics import (
     TraceCollector,
     get_ai_observer,
 )
-from backend.ai_providers.providers.providers import (
-    PROVIDER_CLASSES,
-    create_provider,
-    get_provider_class,
-)
 from backend.ai_providers.prompting.framework import (
     ConversationManager,
     PromptContext,
@@ -47,6 +42,11 @@ from backend.ai_providers.prompting.framework import (
     PromptVersion,
     get_conversation_manager,
     get_prompt_manager,
+)
+from backend.ai_providers.providers.providers import (
+    PROVIDER_CLASSES,
+    create_provider,
+    get_provider_class,
 )
 from backend.ai_providers.response.processor import (
     ProcessedResponse,

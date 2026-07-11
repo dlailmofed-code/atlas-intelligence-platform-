@@ -28,22 +28,22 @@ class NewsAPIConnector(BaseNewsConnector):
         NEWS_API_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         NEWS_API_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://newsapi.org/v2"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("NEWS_API_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "newsapi"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -57,7 +57,7 @@ class NewsAPIConnector(BaseNewsConnector):
             is_free_tier=True,
             supported_endpoints=["/top-headlines", "/everything", "/sources"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class NewsAPIConnector(BaseNewsConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         if self.config.api_key:
             params["apiKey"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class NewsAPIConnector(BaseNewsConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -118,9 +118,9 @@ class NewsAPIConnector(BaseNewsConnector):
             "sortBy": kwargs.get("sort_by", "publishedAt"),
             **kwargs,
         }
-        
+
         return await self.fetch("/everything", params)
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -140,9 +140,9 @@ class NewsAPIConnector(BaseNewsConnector):
             "sources": source,
             "pageSize": limit,
         }
-        
+
         return await self.fetch("/top-headlines", params)
-    
+
     async def fetch_headlines(
         self,
         country: str = "us",
@@ -164,12 +164,12 @@ class NewsAPIConnector(BaseNewsConnector):
             "country": country,
             "pageSize": limit,
         }
-        
+
         if category:
             params["category"] = category
-        
+
         return await self.fetch("/top-headlines", params)
-    
+
     async def get_sources(
         self,
         category: str | None = None,
@@ -186,12 +186,12 @@ class NewsAPIConnector(BaseNewsConnector):
             ConnectorResponse with list of sources
         """
         params = {"language": language}
-        
+
         if category:
             params["category"] = category
-        
+
         return await self.fetch("/sources", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if NewsAPI service is available.

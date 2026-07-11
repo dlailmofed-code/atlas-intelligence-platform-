@@ -18,14 +18,14 @@ from backend.connectors.providers.financial.fred import FREDConnector
 from backend.connectors.providers.financial.polygon import PolygonConnector
 
 __all__ = [
+    "AlphaVantageConnector",
     "BaseFinancialConnector",
-    "StockQuote",
-    "HistoricalData",
+    "CoinGeckoConnector",
     "CryptoQuote",
     "EconomicIndicator",
-    "AlphaVantageConnector",
-    "CoinGeckoConnector",
-    "FinnhubConnector",
     "FREDConnector",
+    "FinnhubConnector",
+    "HistoricalData",
     "PolygonConnector",
+    "StockQuote",
 ]

@@ -16,10 +16,10 @@ from backend.connectors.providers.government.uspto import USPTOConnector
 
 __all__ = [
     "BaseGovernmentConnector",
-    "SECFiling",
-    "PatentInfo",
     "CompanyInfo",
-    "SECEdgarConnector",
-    "USPTOConnector",
     "OpenCorporatesConnector",
+    "PatentInfo",
+    "SECEdgarConnector",
+    "SECFiling",
+    "USPTOConnector",
 ]

@@ -13,7 +13,7 @@ from uuid import UUID
 
 class NotificationType(str, Enum):
     """Notification types."""
-    
+
     EMAIL = "email"
     SLACK = "slack"
     WEBHOOK = "webhook"
@@ -23,7 +23,7 @@ class NotificationType(str, Enum):
 
 class NotificationPriority(str, Enum):
     """Notification priority levels."""
-    
+
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -32,7 +32,7 @@ class NotificationPriority(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification delivery status."""
-    
+
     PENDING = "pending"
     SENT = "sent"
     DELIVERED = "delivered"
@@ -42,28 +42,28 @@ class NotificationStatus(str, Enum):
 
 class NotificationEvent(str, Enum):
     """Notification events."""
-    
+
     # User events
     USER_CREATED = "user.created"
     USER_UPDATED = "user.updated"
     USER_DELETED = "user.deleted"
-    
+
     # Subscription events
     SUBSCRIPTION_CREATED = "subscription.created"
     SUBSCRIPTION_UPDATED = "subscription.updated"
     SUBSCRIPTION_CANCELLED = "subscription.cancelled"
     SUBSCRIPTION_EXPIRING = "subscription.expiring"
-    
+
     # Report events
     REPORT_GENERATED = "report.generated"
     REPORT_FAILED = "report.failed"
     REPORT_SCHEDULED = "report.scheduled"
-    
+
     # Intelligence events
     SIGNAL_DETECTED = "signal.detected"
     OPPORTUNITY_FOUND = "opportunity.found"
     ALERT_TRIGGERED = "alert.triggered"
-    
+
     # System events
     SYSTEM_ALERT = "system.alert"
     SECURITY_ALERT = "security.alert"
@@ -73,7 +73,7 @@ class NotificationEvent(str, Enum):
 @dataclass
 class NotificationContent:
     """Content of a notification."""
-    
+
     subject: str | None = None
     title: str | None = None
     body: str | None = None
@@ -85,7 +85,7 @@ class NotificationContent:
 @dataclass
 class NotificationRecipient:
     """Recipient of a notification."""
-    
+
     type: NotificationType
     address: str  # email address, phone number, webhook URL, etc.
     name: str | None = None
@@ -95,7 +95,7 @@ class NotificationRecipient:
 @dataclass
 class Notification:
     """A notification to be sent."""
-    
+
     id: UUID
     type: NotificationType
     event: NotificationEvent
@@ -117,7 +117,7 @@ class Notification:
 @dataclass
 class EmailConfig:
     """Email notification configuration."""
-    
+
     smtp_host: str
     smtp_port: int = 587
     smtp_user: str | None = None
@@ -131,7 +131,7 @@ class EmailConfig:
 @dataclass
 class SlackConfig:
     """Slack notification configuration."""
-    
+
     webhook_url: str
     channel: str | None = None
     bot_name: str = "ATLAS Bot"
@@ -141,7 +141,7 @@ class SlackConfig:
 @dataclass
 class WebhookConfig:
     """Webhook notification configuration."""
-    
+
     url: str
     method: str = "POST"
     headers: dict[str, str] = field(default_factory=dict)
@@ -152,7 +152,7 @@ class WebhookConfig:
 @dataclass
 class NotificationTemplate:
     """Template for a notification."""
-    
+
     id: str
     event: NotificationEvent
     type: NotificationType
@@ -166,7 +166,7 @@ class NotificationTemplate:
 @dataclass
 class NotificationPreference:
     """User notification preferences."""
-    
+
     user_id: UUID
     email_enabled: bool = True
     slack_enabled: bool = False

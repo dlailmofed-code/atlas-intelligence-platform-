@@ -12,10 +12,10 @@ from backend.pipeline.graph.knowledge_graph import (
 )
 
 __all__ = [
-    "KnowledgeGraph",
     "EntityManager",
-    "RelationshipManager",
     "EvidenceLinker",
     "GraphEntity",
+    "KnowledgeGraph",
+    "RelationshipManager",
     "get_knowledge_graph",
 ]

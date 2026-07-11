@@ -29,22 +29,22 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
         OPENCORPORATES_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         OPENCORPORATES_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.opencorporates.com/v0.4"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("OPENCORPORATES_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "opencorporates"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -58,7 +58,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             is_free_tier=True,
             supported_endpoints=["companies/search", "companies", "network"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["api_token"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def search(
         self,
         query: str,
@@ -112,15 +112,15 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             "page": kwargs.get("page", 1),
             "per_page": kwargs.get("limit", 50),
         }
-        
+
         if kwargs.get("jurisdiction_code"):
             params["jurisdiction_code"] = kwargs["jurisdiction_code"]
-        
+
         if kwargs.get("company_type"):
             params["company_type"] = kwargs["company_type"]
-        
+
         return await self.fetch("/companies/search", params)
-    
+
     async def get_details(self, identifier: str) -> ConnectorResponse:
         """
         Get company details.
@@ -132,7 +132,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with company details
         """
         return await self.fetch(f"/companies/{identifier}", params={})
-    
+
     async def get_officers(self, company_id: str) -> ConnectorResponse:
         """
         Get company officers.
@@ -144,7 +144,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with officers
         """
         return await self.fetch(f"/companies/{company_id}/officers", params={})
-    
+
     async def get_filings(self, company_id: str) -> ConnectorResponse:
         """
         Get company filings.
@@ -156,7 +156,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with filings
         """
         return await self.fetch(f"/companies/{company_id}/filings", params={})
-    
+
     async def get_network(
         self,
         company_id: str,
@@ -173,9 +173,9 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with network data
         """
         params = {"depth": depth}
-        
+
         return await self.fetch(f"/companies/{company_id}/network", params)
-    
+
     async def get_jurisdictions(self) -> ConnectorResponse:
         """
         Get available jurisdictions.
@@ -184,7 +184,7 @@ class OpenCorporatesConnector(BaseGovernmentConnector):
             ConnectorResponse with jurisdictions
         """
         return await self.fetch("/jurisdictions", params={})
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if OpenCorporates service is available.

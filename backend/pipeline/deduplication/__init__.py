@@ -12,10 +12,10 @@ from backend.pipeline.deduplication.deduplicator import (
 )
 
 __all__ = [
-    "Deduplicator",
-    "URLHasher",
     "ContentHasher",
+    "Deduplicator",
     "SemanticSimilarityChecker",
     "TimeWindowDetector",
+    "URLHasher",
     "get_deduplicator",
 ]

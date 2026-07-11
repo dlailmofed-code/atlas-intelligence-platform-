@@ -5,10 +5,8 @@ Handles normalization of dates, currencies, countries, languages, companies, peo
 """
 
 import re
-import unicodedata
 from datetime import datetime
 from typing import Any
-from zoneinfo import ZoneInfo
 
 from backend.core.logging import get_logger
 from backend.pipeline.types import PipelineRecord
@@ -259,7 +257,7 @@ COMPANY_SUFFIXES = [
 
 class DateNormalizer:
     """Normalizes date strings to ISO format."""
-    
+
     DATE_PATTERNS = [
         # ISO formats
         (r"\d{4}-\d{2}-\d{2}", "%Y-%m-%d"),
@@ -275,7 +273,7 @@ class DateNormalizer:
         (r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}", "%Y-%m-%dT%H:%M:%S"),
         (r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}\.\d+", "%Y-%m-%dT%H:%M:%S.%f"),
     ]
-    
+
     RELATIVE_DATE_PATTERNS = {
         r"yesterday": -1,
         r"today": 0,
@@ -287,21 +285,21 @@ class DateNormalizer:
         r"last\s+year": -365,
         r"next\s+year": 365,
     }
-    
+
     def normalize_date(self, date_str: str | None) -> str | None:
         """Normalize a date string to ISO format."""
         if not date_str:
             return None
-        
+
         date_str = date_str.strip()
-        
+
         # Try relative date patterns first
         for pattern, days in self.RELATIVE_DATE_PATTERNS.items():
             if re.search(pattern, date_str, re.IGNORECASE):
                 from datetime import timedelta
                 relative_date = datetime.now() + timedelta(days=days)
                 return relative_date.strftime("%Y-%m-%d")
-        
+
         # Try standard patterns
         for pattern, fmt in self.DATE_PATTERNS:
             match = re.search(pattern, date_str)
@@ -311,7 +309,7 @@ class DateNormalizer:
                     return dt.strftime("%Y-%m-%d")
                 except ValueError:
                     continue
-        
+
         # Try common relative patterns
         match = re.search(
             r"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago",
@@ -321,9 +319,9 @@ class DateNormalizer:
         if match:
             amount = int(match.group(1))
             unit = match.group(2).lower()
-            
+
             from datetime import timedelta
-            
+
             unit_map = {
                 "second": timedelta(seconds=amount),
                 "minute": timedelta(minutes=amount),
@@ -333,13 +331,13 @@ class DateNormalizer:
                 "month": timedelta(days=amount * 30),
                 "year": timedelta(days=amount * 365),
             }
-            
+
             if unit in unit_map:
                 past_date = datetime.now() - unit_map[unit]
                 return past_date.strftime("%Y-%m-%d")
-        
+
         return date_str
-    
+
     def parse_datetime(self, date_str: str | None) -> datetime | None:
         """Parse a date string to datetime object."""
         normalized = self.normalize_date(date_str)
@@ -353,7 +351,7 @@ class DateNormalizer:
 
 class CurrencyNormalizer:
     """Normalizes currency values."""
-    
+
     def normalize_currency(
         self,
         value: str | float | int | None,
@@ -367,33 +365,33 @@ class CurrencyNormalizer:
         """
         if value is None:
             return None, currency_code
-        
+
         # If already numeric
         if isinstance(value, (int, float)):
             return float(value), currency_code
-        
+
         value_str = str(value).strip()
-        
+
         # Extract currency code from value
         detected_currency = currency_code
         numeric_value = value_str
-        
+
         # Try to detect currency from symbol/code
         for symbol, code in CURRENCY_MAPPINGS.items():
             if symbol in value_str.upper():
                 detected_currency = code
                 numeric_value = value_str.upper().replace(symbol, "").strip()
                 break
-        
+
         # Remove common formatting
         numeric_value = re.sub(r"[,$'\"\\]", "", numeric_value)
         numeric_value = re.sub(r"\s+[A-Z]{3}$", "", numeric_value)  # Remove trailing currency
-        
+
         try:
             return float(numeric_value), detected_currency
         except ValueError:
             return None, detected_currency
-    
+
     def format_currency(
         self,
         value: float | None,
@@ -403,7 +401,7 @@ class CurrencyNormalizer:
         """Format a currency value for display."""
         if value is None:
             return None
-        
+
         symbols = {
             "USD": "$",
             "EUR": "€",
@@ -414,105 +412,105 @@ class CurrencyNormalizer:
             "KRW": "₩",
             "RUB": "₽",
         }
-        
+
         symbol = symbols.get(currency_code, currency_code + " ")
-        
+
         if currency_code == "JPY":
             formatted = f"{symbol}{int(value):,}"
         else:
             formatted = f"{symbol}{value:,.2f}"
-        
+
         return formatted if include_symbol else formatted.replace(symbol, "").strip()
 
 
 class CountryNormalizer:
     """Normalizes country names and codes."""
-    
+
     def normalize_country(self, country: str | None) -> str | None:
         """Normalize a country name or code to full name."""
         if not country:
             return None
-        
+
         country = country.strip()
-        
+
         # Check direct ISO code mapping
         if country.upper() in ISO_COUNTRIES:
             return ISO_COUNTRIES[country.upper()]
-        
+
         # Check common name mappings
         if country.lower() in COUNTRY_MAPPINGS:
             return COUNTRY_MAPPINGS[country.lower()]
-        
+
         # Try to match against ISO country names
         for code, name in ISO_COUNTRIES.items():
             if country.lower() == name.lower():
                 return name
-        
+
         return country.title()
-    
+
     def get_country_code(self, country: str | None) -> str | None:
         """Get the ISO country code for a country."""
         if not country:
             return None
-        
+
         normalized = self.normalize_country(country)
         if not normalized:
             return None
-        
+
         for code, name in ISO_COUNTRIES.items():
             if name.lower() == normalized.lower():
                 return code
-        
+
         return None
 
 
 class LanguageNormalizer:
     """Normalizes language names and codes."""
-    
+
     def normalize_language(self, language: str | None) -> str | None:
         """Normalize a language name or code to full name."""
         if not language:
             return None
-        
+
         language = language.strip().lower()
-        
+
         # Check direct mapping
         if language in LANGUAGE_MAPPINGS:
             return LANGUAGE_MAPPINGS[language]
-        
+
         # Try to match against language names
         for code, name in LANGUAGE_MAPPINGS.items():
             if language == name.lower():
                 return name
-        
+
         return language.title()
-    
+
     def get_language_code(self, language: str | None) -> str | None:
         """Get the ISO language code for a language."""
         if not language:
             return None
-        
+
         normalized = self.normalize_language(language)
         if not normalized:
             return None
-        
+
         for code, name in LANGUAGE_MAPPINGS.items():
             if name.lower() == normalized.lower():
                 return code
-        
+
         return None
 
 
 class CompanyNormalizer:
     """Normalizes company names."""
-    
+
     def normalize_company(self, company: str | None) -> str | None:
         """Normalize a company name."""
         if not company:
             return None
-        
+
         company = company.strip()
-        
+
         # Remove common suffixes
         for suffix in COMPANY_SUFFIXES:
             if company.endswith(f", {suffix}"):
@@ -521,13 +519,13 @@ class CompanyNormalizer:
                 company = company[: -len(f" {suffix}")]
             elif company.endswith(suffix):
                 company = company[: -len(suffix)]
-        
+
         # Normalize spacing
         company = re.sub(r"\s+", " ", company)
-        
+
         # Title case
         company = company.title()
-        
+
         # Restore known acronyms
         acronyms = ["LLC", "LLC", "GmbH", "AG", "SA", "NV", "PLC", "LLP"]
         for acronym in acronyms:
@@ -538,61 +536,61 @@ class CompanyNormalizer:
                     company,
                     flags=re.IGNORECASE
                 )
-        
+
         return company.strip()
-    
+
     def extract_company_name(self, text: str | None) -> str | None:
         """Extract company name from text."""
         if not text:
             return None
-        
+
         # Look for patterns like "at Company Name"
         match = re.search(r"(?:at|@|of)\s+([A-Z][A-Za-z\s&]+(?:Inc|Corp|LLC|Ltd|Company)?)", text)
         if match:
             return self.normalize_company(match.group(1))
-        
+
         # Take first capitalized phrase
         match = re.search(r"^([A-Z][A-Za-z\s&]+(?:Inc|Corp|LLC|Ltd|Company)?)", text)
         if match:
             return self.normalize_company(match.group(1))
-        
+
         return None
 
 
 class PersonNormalizer:
     """Normalizes person names."""
-    
+
     def normalize_person(self, person: str | None) -> str | None:
         """Normalize a person name."""
         if not person:
             return None
-        
+
         person = person.strip()
-        
+
         # Remove titles
         titles = r"(?:Dr|Mr|Mrs|Ms|Miss|Prof|Professor|Sir|Madam|Lord|Lady)\.?\s*"
         person = re.sub(titles, "", person, flags=re.IGNORECASE)
-        
+
         # Remove suffixes
         suffixes = r"(?:Jr|Sr|III|IV|V|II)\.?\s*$"
         person = re.sub(suffixes, "", person, flags=re.IGNORECASE)
-        
+
         # Normalize spacing
         person = re.sub(r"\s+", " ", person)
-        
+
         return person.strip()
-    
+
     def extract_name_parts(self, name: str | None) -> dict[str, str | None]:
         """Extract first, middle, and last name parts."""
         if not name:
             return {"first": None, "middle": None, "last": None}
-        
+
         normalized = self.normalize_person(name)
         if not normalized:
             return {"first": None, "middle": None, "last": None}
-        
+
         parts = normalized.split()
-        
+
         if len(parts) == 1:
             return {"first": parts[0], "middle": None, "last": None}
         elif len(parts) == 2:
@@ -603,7 +601,7 @@ class PersonNormalizer:
 
 class LocationNormalizer:
     """Normalizes location data."""
-    
+
     def normalize_location(
         self,
         location: str | None,
@@ -611,10 +609,10 @@ class LocationNormalizer:
         """Normalize a location string."""
         if not location:
             return {"full": None, "city": None, "state": None, "country": None}
-        
+
         location = location.strip()
         country_normalizer = CountryNormalizer()
-        
+
         # Try to parse common formats
         # "City, State, Country"
         match = re.match(r"(.+?),\s*(.+?),\s*(.+)", location)
@@ -625,7 +623,7 @@ class LocationNormalizer:
                 "state": match.group(2).strip(),
                 "country": country_normalizer.normalize_country(match.group(3)),
             }
-        
+
         # "City, Country"
         match = re.match(r"(.+?),\s*(.+)", location)
         if match:
@@ -635,13 +633,13 @@ class LocationNormalizer:
                 "state": None,
                 "country": country_normalizer.normalize_country(match.group(2)),
             }
-        
+
         return {"full": location, "city": None, "state": None, "country": None}
 
 
 class DataNormalizer:
     """Main normalizer that coordinates all normalization operations."""
-    
+
     def __init__(self):
         self.date_normalizer = DateNormalizer()
         self.currency_normalizer = CurrencyNormalizer()
@@ -650,65 +648,65 @@ class DataNormalizer:
         self.company_normalizer = CompanyNormalizer()
         self.person_normalizer = PersonNormalizer()
         self.location_normalizer = LocationNormalizer()
-    
+
     def normalize_record(self, record: PipelineRecord) -> dict[str, Any]:
         """Normalize all fields in a pipeline record."""
         data = record.deduplicated_data or record.cleaned_data or {}
         normalized = {}
-        
+
         # Normalize dates
         date_fields = ["date", "published_at", "created_at", "updated_at", "timestamp"]
         for field in date_fields:
             if field in data:
                 normalized[field] = self.date_normalizer.normalize_date(data[field])
-        
+
         # Normalize country
         if "country" in data:
             normalized["country"] = self.country_normalizer.normalize_country(data["country"])
-        
+
         # Normalize language
         if "language" in data:
             normalized["language"] = self.language_normalizer.normalize_language(data["language"])
-        
+
         # Normalize company
         company_fields = ["company", "organization", "company_name"]
         for field in company_fields:
-            if field in data and data[field]:
+            if data.get(field):
                 normalized[field] = self.company_normalizer.normalize_company(data[field])
                 break
-        
+
         # Normalize person
         person_fields = ["author", "person", "creator", "by"]
         for field in person_fields:
-            if field in data and data[field]:
+            if data.get(field):
                 normalized[field] = self.person_normalizer.normalize_person(data[field])
                 break
-        
+
         # Normalize currency
         if "currency" in data:
             normalized["currency"] = self.currency_normalizer.normalize_currency(
                 data.get("value") or data.get("amount"),
                 data["currency"]
             )[1]
-        
+
         if "value" in data or "amount" in data:
             value = data.get("value") or data.get("amount")
             normalized["value"], normalized["currency"] = self.currency_normalizer.normalize_currency(
                 value, data.get("currency")
             )
-        
+
         # Normalize location
         location_fields = ["location", "place", "venue"]
         for field in location_fields:
             if field in data:
                 normalized[field] = self.location_normalizer.normalize_location(data[field])
                 break
-        
+
         # Copy remaining fields
         for key, value in data.items():
             if key not in normalized:
                 normalized[key] = value
-        
+
         return normalized
 
 

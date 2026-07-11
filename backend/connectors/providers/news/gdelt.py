@@ -29,9 +29,9 @@ class GDELTConnector(BaseNewsConnector):
         GDELT_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         GDELT_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.gdeltproject.org/api/v2"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("GDELT_")
@@ -39,14 +39,14 @@ class GDELTConnector(BaseNewsConnector):
                 config.base_url = self.BASE_URL
             # GDELT is free, no API key required
             config.api_key = None
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "gdelt"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -60,7 +60,7 @@ class GDELTConnector(BaseNewsConnector):
             is_free_tier=True,
             supported_endpoints=["/articles", "/search", "/timeline"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -80,7 +80,7 @@ class GDELTConnector(BaseNewsConnector):
         """
         url = f"{self._base_url}{endpoint}"
         params = params or {}
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class GDELTConnector(BaseNewsConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_news(
         self,
         query: str | None = None,
@@ -118,9 +118,9 @@ class GDELTConnector(BaseNewsConnector):
             "sort": kwargs.get("sort", "DateDesc"),
             **kwargs,
         }
-        
+
         return await self.fetch("/articles/articles", params)
-    
+
     async def fetch_by_source(
         self,
         source: str,
@@ -141,9 +141,9 @@ class GDELTConnector(BaseNewsConnector):
             "maxrecords": limit,
             "format": "json",
         }
-        
+
         return await self.fetch("/articles/articles", params)
-    
+
     async def fetch_headlines(
         self,
         country: str = "US",
@@ -169,9 +169,9 @@ class GDELTConnector(BaseNewsConnector):
             "format": "json",
             **({"sourcecountry": country} if country else {}),
         }
-        
+
         return await self.fetch("/articles/articles", params)
-    
+
     async def search_events(
         self,
         query: str,
@@ -199,9 +199,9 @@ class GDELTConnector(BaseNewsConnector):
             **({"timeend": end_date} if end_date else {}),
             **kwargs,
         }
-        
+
         return await self.fetch("/timeline/timeline", params)
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if GDELT service is available.

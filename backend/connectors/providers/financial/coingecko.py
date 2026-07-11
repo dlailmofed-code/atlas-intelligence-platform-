@@ -29,22 +29,22 @@ class CoinGeckoConnector(BaseFinancialConnector):
         COINGECKO_RATE_LIMIT_PER_MINUTE: Requests per minute limit
         COINGECKO_RATE_LIMIT_PER_DAY: Requests per day limit
     """
-    
+
     BASE_URL = "https://api.coingecko.com/api/v3"
-    
+
     def __init__(self, config: ConnectorConfig | None = None):
         if config is None:
             config = ConnectorConfig.from_env("COINGECKO_")
             if config.base_url is None:
                 config.base_url = self.BASE_URL
-        
+
         super().__init__(config)
         self._base_url = self.config.base_url or self.BASE_URL
-    
+
     @property
     def provider_name(self) -> str:
         return "coingecko"
-    
+
     @property
     def provider_info(self) -> ProviderInfo:
         return ProviderInfo(
@@ -58,7 +58,7 @@ class CoinGeckoConnector(BaseFinancialConnector):
             is_free_tier=True,
             supported_endpoints=["simple/price", "coins/list", "coins/market"],
         )
-    
+
     async def fetch(
         self,
         endpoint: str,
@@ -77,10 +77,10 @@ class CoinGeckoConnector(BaseFinancialConnector):
             ConnectorResponse with fetched data
         """
         params = params or {}
-        
+
         if self.config.api_key:
             params["x_cg_pro_api_key"] = self.config.api_key
-        
+
         # Placeholder response
         return ConnectorResponse(
             data={
@@ -91,7 +91,7 @@ class CoinGeckoConnector(BaseFinancialConnector):
             success=True,
             metadata={"connector": self.provider_name},
         )
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch real-time quote for a cryptocurrency.
@@ -109,9 +109,9 @@ class CoinGeckoConnector(BaseFinancialConnector):
             "include_market_cap": "true",
             "include_24hr_vol": "true",
         }
-        
+
         return await self.fetch("/simple/price", params)
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -135,17 +135,17 @@ class CoinGeckoConnector(BaseFinancialConnector):
             "id": symbol.lower(),
             "vs_currency": "usd",
         }
-        
+
         if interval == "daily":
             params["interval"] = "daily"
-        
+
         if start_date:
             params["from"] = start_date
         if end_date:
             params["to"] = end_date
-        
+
         return await self.fetch("/coins/bitcoin/market_chart", params)
-    
+
     async def search_symbols(self, query: str) -> ConnectorResponse:
         """
         Search for cryptocurrencies.
@@ -157,9 +157,9 @@ class CoinGeckoConnector(BaseFinancialConnector):
             ConnectorResponse with matching coins
         """
         params = {"query": query}
-        
+
         return await self.fetch("/search", params)
-    
+
     async def fetch_market_data(
         self,
         vs_currency: str = "usd",
@@ -184,9 +184,9 @@ class CoinGeckoConnector(BaseFinancialConnector):
             "page": 1,
             "sparkline": "false",
         }
-        
+
         return await self.fetch("/coins/markets", params)
-    
+
     async def fetch_trending(self) -> ConnectorResponse:
         """
         Fetch trending cryptocurrencies.
@@ -195,7 +195,7 @@ class CoinGeckoConnector(BaseFinancialConnector):
             ConnectorResponse with trending coins
         """
         return await self.fetch("/search/trending", params={})
-    
+
     async def health_check_impl(self) -> bool:
         """
         Check if CoinGecko service is available.

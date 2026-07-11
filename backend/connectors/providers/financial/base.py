@@ -5,17 +5,16 @@ Base class for financial data providers.
 """
 
 from datetime import datetime
-from typing import Any
 
 from pydantic import BaseModel
 
-from backend.connectors.base import BaseConnector, ConnectorConfig, ProviderInfo, ProviderType
+from backend.connectors.base import BaseConnector, ProviderType
 from backend.connectors.base.types import ConnectorResponse
 
 
 class StockQuote(BaseModel):
     """Schema for a stock quote."""
-    
+
     symbol: str
     price: float | None = None
     change: float | None = None
@@ -29,7 +28,7 @@ class StockQuote(BaseModel):
 
 class HistoricalData(BaseModel):
     """Schema for historical price data."""
-    
+
     date: str
     open: float | None = None
     high: float | None = None
@@ -41,7 +40,7 @@ class HistoricalData(BaseModel):
 
 class CryptoQuote(BaseModel):
     """Schema for a cryptocurrency quote."""
-    
+
     symbol: str
     price: float | None = None
     change_24h: float | None = None
@@ -53,7 +52,7 @@ class CryptoQuote(BaseModel):
 
 class EconomicIndicator(BaseModel):
     """Schema for an economic indicator."""
-    
+
     indicator_code: str
     value: float | None = None
     date: str | None = None
@@ -67,11 +66,11 @@ class BaseFinancialConnector(BaseConnector):
     
     Provides common functionality for financial connectors.
     """
-    
+
     @property
     def provider_type(self) -> ProviderType:
         return ProviderType.FINANCIAL
-    
+
     async def fetch_quote(self, symbol: str) -> ConnectorResponse:
         """
         Fetch real-time quote for a symbol.
@@ -83,7 +82,7 @@ class BaseFinancialConnector(BaseConnector):
             ConnectorResponse with quote data
         """
         raise NotImplementedError
-    
+
     async def fetch_historical(
         self,
         symbol: str,
@@ -104,7 +103,7 @@ class BaseFinancialConnector(BaseConnector):
             ConnectorResponse with historical data
         """
         raise NotImplementedError
-    
+
     async def search_symbols(self, query: str) -> ConnectorResponse:
         """
         Search for symbols.

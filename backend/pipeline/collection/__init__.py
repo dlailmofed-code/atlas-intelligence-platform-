@@ -10,8 +10,8 @@ from backend.pipeline.collection.collector import (
 )
 
 __all__ = [
-    "CollectionResult",
     "BatchConfig",
+    "CollectionResult",
     "ConnectorOrchestrator",
     "create_orchestrator",
 ]
