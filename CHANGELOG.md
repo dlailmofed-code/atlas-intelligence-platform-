@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1-beta] - 2026-07-10
+
+### ⚠️ MVP/Beta Release
+
+This is the first public release of the ATLAS Intelligence Platform as an MVP/Beta release.
+
+### Added - MVP Foundation
+
+#### Backend
+- **FastAPI REST API** with 55+ endpoints
+- **PostgreSQL Database** with 47+ SQLAlchemy models
+- **Authentication System**: JWT tokens with Argon2 password hashing
+- **RBAC Authorization**: Role-based access control with permissions
+- **Subscription Management**: Stripe integration with webhook handling
+- **Feature Flags**: Dynamic feature toggles system
+- **Usage Tracking**: API usage monitoring and limits
+- **Intelligence Engine**: Signal detection, pattern analysis, insight generation
+- **Alembic Migrations**: Database versioning and schema management
+
+#### Frontend
+- **Next.js 14** with TypeScript and strict mode
+- **Authentication Pages**: Login and Register
+- **Dashboard**: Overview and analytics
+- **Intelligence Dashboard**: Signal and pattern visualization
+- **Opportunities**: Business opportunity tracking
+- **Reports**: Report management
+- **Projects**: Project workspace
+- **Settings**: User preferences
+- **Responsive UI**: Tailwind CSS with shadcn/ui components
+
+#### Infrastructure
+- **Docker & Docker Compose**: Multi-stage containerized deployment
+- **GitHub Actions CI/CD**: Automated testing, linting, and type checking
+- **Environment Configuration**: Centralized Pydantic settings management
+- **Comprehensive Documentation**: README, CHANGELOG, SECURITY, SUPPORT, ROADMAP
+
+### Known Limitations
+
+This MVP/Beta release does **not** include:
+
+- Data Connector Framework (News, Search, Financial APIs)
+- AI Provider Integration (LLM wiring)
+- Data Pipeline (Crawler, Evidence Extraction)
+- Full Report Generation
+- Notification System (Email/SMS delivery)
+- Multi-Factor Authentication (MFA)
+- SSO/SAML support
+- OAuth Providers (Google, GitHub)
+- Admin Dashboard UI
+- Kubernetes manifests
+- Terraform configurations
+
+For complete details, see [IMPLEMENTATION_GAP_ANALYSIS.md](IMPLEMENTATION_GAP_ANALYSIS.md).
+
 ## [1.0.1] - 2026-07-10
 
 ### Added - RC1 Release Preparation

@@ -134,7 +134,7 @@ class AppSettings(BaseSettings):
     """Main application settings."""
 
     name: str = Field(default="ATLAS Platform", description="Application name")
-    version: str = Field(default="1.0.1", description="Application version")
+    version: str = Field(default="1.0.1-beta", description="Application version")
     description: str = Field(default="AI-Powered Business Intelligence Operating System")
 
     debug: bool = Field(default=False, description="Debug mode")

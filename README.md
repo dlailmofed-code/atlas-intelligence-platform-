@@ -2,27 +2,99 @@
 
 **AI-Powered Business Intelligence Operating System**
 
+> **⚠️ MVP/BETA RELEASE** - This is an early release of the ATLAS Platform. Many features are in development. See [Known Limitations](#known-limitations) for details.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![Status](https://img.shields.io/badge/status-beta-orange.svg)]()
 
 ATLAS is a revolutionary AI-driven business opportunity intelligence platform designed to transform how businesses discover, evaluate, and capitalize on strategic opportunities.
+
+> **📚 For implementation details, see the [Implementation Gap Analysis](IMPLEMENTATION_GAP_ANALYSIS.md).**
 
 ## 🌟 Vision
 
 ATLAS is not merely a search engine or a simple chatbot—it is an integrated AI Intelligence Operating System that transforms scattered global information streams into focused, actionable business intelligence.
 
-## 🎯 Core Features
+## 🎯 Core Features (MVP)
 
-- **Intelligence Engine**: Multi-source data processing with causal reasoning
-- **Opportunity Discovery**: AI-powered opportunity identification and scoring
-- **Knowledge Graph**: Cross-domain relationship mapping
-- **Explainable AI**: Full transparency in recommendations with confidence levels
-- **Multi-Source Intelligence**: Integration with news, financial data, patents, and more
+- **Intelligence Engine Framework**: Multi-source data processing architecture with causal reasoning
+- **Opportunity Discovery**: AI-powered opportunity identification and scoring framework
+- **Knowledge Graph**: Cross-domain relationship mapping architecture
+- **Explainable AI**: Transparency framework with confidence levels
 - **Subscription Management**: Multi-tier plans with usage limits and feature flags
-- **Enterprise Security**: RBAC, SSO, and comprehensive audit logging
+- **Enterprise Security**: RBAC, JWT authentication, and comprehensive audit logging
+
+## ✅ Current Features (v1.0.1-beta)
+
+### Backend
+- **FastAPI REST API** with 55+ endpoints
+- **PostgreSQL Database** with 47+ models
+- **Authentication System**: JWT tokens with Argon2 password hashing
+- **RBAC Authorization**: Role-based access control
+- **Subscription Management**: Stripe integration, webhook handling
+- **Feature Flags**: Dynamic feature toggles
+- **Usage Tracking**: API usage monitoring
+- **Intelligence Engine**: Signal detection, pattern analysis, insight generation
+- **Alembic Migrations**: Database versioning
+
+### Frontend
+- **Next.js 14** with TypeScript
+- **Authentication Pages**: Login, Register
+- **Dashboard**: Overview and analytics
+- **Intelligence Dashboard**: Signal and pattern visualization
+- **Opportunities**: Business opportunity tracking
+- **Reports**: Report management
+- **Projects**: Project workspace
+- **Settings**: User preferences
+- **Responsive UI**: Tailwind CSS with shadcn/ui components
+
+### Infrastructure
+- **Docker & Docker Compose**: Containerized deployment
+- **GitHub Actions CI/CD**: Automated testing and linting
+- **Environment Configuration**: Centralized settings management
+
+## ⚠️ Known Limitations
+
+This is an MVP/Beta release. The following features are **not yet implemented**:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Data Connectors** | 🔴 Not Implemented | No news, search, or financial API integrations |
+| **AI Provider Integration** | 🔴 Not Implemented | LLM calls not yet wired (config exists) |
+| **Data Pipeline** | 🔴 Not Implemented | No crawler or evidence extraction |
+| **Report Generation** | 🟡 Partial | API exists, generation logic pending |
+| **Notification System** | 🟡 Partial | Model exists, delivery not implemented |
+| **Multi-Factor Auth (MFA)** | 🔴 Not Implemented | Basic auth only |
+| **SSO/SAML** | 🔴 Not Implemented | Not available in this release |
+| **OAuth Providers** | 🔴 Not Implemented | Google, GitHub login not available |
+| **Admin Dashboard UI** | 🔴 Not Implemented | API endpoints exist, UI pending |
+| **Kubernetes** | 🔴 Not Implemented | Manifests pending |
+| **Terraform** | 🔴 Not Implemented | Infrastructure as code pending |
+
+> **📋 For complete details, see [IMPLEMENTATION_GAP_ANALYSIS.md](IMPLEMENTATION_GAP_ANALYSIS.md)**
+
+## 🗺️ Roadmap
+
+The full implementation roadmap includes these phases:
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 1 | Core Platform | ✅ Complete |
+| Phase 2 | Authentication | 🟡 Partial |
+| Phase 3 | Connector Framework | 🔴 Pending |
+| Phase 4 | Data Pipeline | 🔴 Pending |
+| Phase 5 | Intelligence Engine | 🟡 Partial |
+| Phase 6 | Report Engine | 🟡 Partial |
+| Phase 7 | Notification Engine | 🔴 Pending |
+| Phase 8 | Monetization | 🟡 Partial |
+| Phase 9 | Admin Platform | 🔴 Pending |
+| Phase 10 | Infrastructure | 🔴 Pending |
+
+See [ROADMAP.md](ROADMAP.md) for detailed future plans.
 
 ## 🏗️ Architecture
 

@@ -1,15 +1,17 @@
-# ATLAS Intelligence Platform v1.0.1
+# ATLAS Intelligence Platform v1.0.1-beta
 
-**Release Date:** July 10, 2026  
-**Type:** Production Release (RC1)
+**Release Date:** July 10, 2026
+**Type:** MVP/Beta Release
+
+> **This is an MVP/Beta release.** Many features are still under development. See [Known Limitations](#known-limitations) for details.
 
 ---
 
 ## Executive Summary
 
-ATLAS v1.0.1 is the first production release of the ATLAS Intelligence Platform—an AI-powered business intelligence operating system designed to transform scattered global information streams into focused, actionable business intelligence.
+ATLAS v1.0.1-beta is the first public release of the ATLAS Intelligence Platform MVP—an AI-powered business intelligence operating system framework designed to transform scattered global information streams into focused, actionable business intelligence.
 
-This release provides a complete backend API with authentication, subscription management, feature flags, usage tracking, and a multi-source intelligence engine. The frontend is containerized and ready for deployment.
+This release provides the complete backend API architecture with authentication, subscription management, feature flags, and the intelligence engine framework. The frontend is containerized and ready for deployment.
 
 ### Key Highlights
 

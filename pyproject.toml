@@ -1,6 +1,6 @@
 [project]
 name = "atlas-platform"
-version = "1.0.1"
+version = "1.0.1-beta"
 description = "AI-Powered Business Intelligence Operating System"
 readme = "README.md"
 requires-python = ">=3.11"
