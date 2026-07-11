@@ -12,3 +12,7 @@ export * from './tabs';
 export * from './dialog';
 export * from './pagination';
 export * from './dropdown-menu';
+export * from './toast';
+export * from './toaster';
+export * from './switch';
+export * from './use-toast';

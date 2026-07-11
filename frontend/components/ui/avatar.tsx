@@ -94,4 +94,20 @@ const AvatarLarge = React.forwardRef<HTMLDivElement, AvatarProps>(
 );
 AvatarLarge.displayName = 'AvatarLarge';
 
-export { Avatar, AvatarSmall, AvatarLarge, avatarVariants };
+const AvatarFallback = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex h-full w-full items-center justify-center rounded-full bg-muted font-medium text-muted-foreground',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+);
+AvatarFallback.displayName = 'AvatarFallback';
+
+export { Avatar, AvatarSmall, AvatarLarge, AvatarFallback, avatarVariants };

@@ -13,6 +13,18 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Bell,
+  CreditCard,
+  Cpu,
+  Link2,
+  Activity,
+  Shield,
+  Building2,
+  Users,
+  Key,
+  FileCode,
+  LogOut,
+  Zap,
 } from 'lucide-react';
 
 interface NavItem {
@@ -29,6 +41,18 @@ const navigation: NavItem[] = [
   { title: 'Projects', href: '/projects', icon: FolderKanban },
 ];
 
+const accountNavigation: NavItem[] = [
+  { title: 'Notifications', href: '/notifications', icon: Bell },
+  { title: 'Billing', href: '/billing', icon: CreditCard },
+  { title: 'AI Providers', href: '/ai-providers', icon: Cpu },
+  { title: 'Connectors', href: '/connectors', icon: Link2 },
+  { title: 'Monitoring', href: '/monitoring', icon: Activity },
+];
+
+const adminNavigation: NavItem[] = [
+  { title: 'Admin', href: '/admin/dashboard', icon: Shield },
+];
+
 const secondaryNavigation: NavItem[] = [
   { title: 'Settings', href: '/settings', icon: Settings },
 ];
@@ -36,10 +60,13 @@ const secondaryNavigation: NavItem[] = [
 interface SidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
-  const pathname = usePathname();
+export function Sidebar({ collapsed = false, onToggle, isAdmin = false }: SidebarProps) {
+  const pathname = usePathname() ?? '';
+  const mainNav = isAdmin ? [] : navigation;
+  const middleNav = isAdmin ? adminNavigation : accountNavigation;
 
   return (
     <aside
@@ -78,30 +105,64 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-          const Icon = item.icon;
-          
-          return (
-            <Link
-              key={item.title}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-              title={collapsed ? item.title : undefined}
-            >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.title}</span>}
-            </Link>
-          );
-        })}
-      </nav>
+      {/* Main Navigation */}
+      {mainNav.length > 0 && (
+        <nav className="flex-1 space-y-1 p-2">
+          {mainNav.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+            const Icon = item.icon;
+            
+            return (
+              <Link
+                key={item.title}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+                title={collapsed ? item.title : undefined}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                {!collapsed && <span>{item.title}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* Middle Navigation (Account) */}
+      {middleNav.length > 0 && (
+        <div className="border-t p-2">
+          {!collapsed && (
+            <p className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground">
+              {isAdmin ? 'Admin' : 'Account'}
+            </p>
+          )}
+          {middleNav.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+            const Icon = item.icon;
+            
+            return (
+              <Link
+                key={item.title}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+                title={collapsed ? item.title : undefined}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                {!collapsed && <span>{item.title}</span>}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Secondary Navigation */}
       <div className="border-t p-2">
